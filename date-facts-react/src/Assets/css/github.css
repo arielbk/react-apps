@@ -1,0 +1,37 @@
+.gh-container {
+  text-align: center;
+  opacity: 0.9;
+  background: #24292e;
+  position: fixed;
+  top: 22px;
+  right: 44px;
+  color: #fff;
+  padding: 22px;
+  border-radius: 6px;
+  transform: scale(0.7,0.7);
+  transform-origin: 100% 0;
+  border: 1px solid #fff;
+  transition: .3s cubic-bezier(0.42, 0, 0, 1.1);
+}
+
+.gh-container:hover {
+  transform: scale(1,1);
+}
+
+.gh-logo {
+  font-size: 3em;
+  padding: 12px;
+}
+
+a.gh-link .gh-container {
+  color: #fff;
+  text-decoration: none;
+}
+
+a.gh-link:hover .gh-container {
+  text-decoration: underline;
+}
+
+a.gh-link:visited .gh-container {
+  color: #fff;
+}
