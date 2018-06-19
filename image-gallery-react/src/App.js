@@ -1,8 +1,17 @@
 import React, { Component } from 'react';
 
 class DisplayImage extends Component {
+  constructor(props) {
+    super(props);
+    console.log(this.props.photo[0]);
+  }
+
   render() {
-    return <img src="https://source.unsplash.com/random/600x450" alt="randomly chosen" />
+    return (
+      <div className="display-image">
+        <img src={this.props.photo[0].photoUrl} alt={this.props.photo[0].description} />
+      </div>
+    )
   };
 }
 
@@ -15,7 +24,8 @@ class ImageThumbs extends Component {
           src={photo.photoUrl} 
           alt={photo.description} 
           key={photo.photoUrl} 
-          className={photo.selected ? 'selected' : 'unselected'}
+          className={photo.selected ? 'selected' : ''}
+          onClick={() => this.props.onSelectImage(photo)}
         />
       )}
     </div>
@@ -43,14 +53,25 @@ class App extends Component {
         { photoUrl: 'https://source.unsplash.com/random/600x457', description: 'and another short description', selected: false },
       ]
     }
+
+    this.handleSelectImage = this.handleSelectImage.bind(this);
+  }
+
+  handleSelectImage(newImage) {
+    let photosClone = [...this.state.photos];
+    photosClone.forEach(photo => photo.photoUrl === newImage.photoUrl ? photo.selected = true : photo.selected = false);
+    this.setState({ photos: photosClone });
   }
 
   render() {
     return (
       <div className="container">
-        <DisplayImage />
+        <DisplayImage 
+          photo={this.state.photos.filter(photo => photo.selected)}
+        />
         <ImageThumbs 
           photos={this.state.photos}
+          onSelectImage={this.handleSelectImage}
         />
         <AddPhoto />
         <p>Click, or use your keyboard arrow keys to choose a photo</p>
