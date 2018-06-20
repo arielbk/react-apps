@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
+// import uuid from 'uuid';
+
 
 class DisplayImage extends Component {
-  constructor(props) {
-    super(props);
-    console.log(this.props.photo[0]);
-  }
-
   render() {
     return (
       <div className="display-image">
@@ -18,15 +15,16 @@ class DisplayImage extends Component {
 class ImageThumbs extends Component {
   render() {
     return (
-    <div className="imageThumbs">
+    <div className="image-thumbs">
       {this.props.photos.map(photo => 
-        <img 
-          src={photo.photoUrl} 
-          alt={photo.description} 
-          key={photo.photoUrl} 
-          className={photo.selected ? 'selected' : ''}
-          onClick={() => this.props.onSelectImage(photo)}
-        />
+        <div key={photo.uuid} className="img-thumb">
+          <img 
+            src={photo.photoUrl} 
+            alt={photo.description} 
+            className={photo.selected ? 'selected' : ''}
+            onClick={() => this.props.onSelectImage(photo)}
+          />
+        </div>
       )}
     </div>
     )
@@ -35,32 +33,63 @@ class ImageThumbs extends Component {
 
 class AddPhoto extends Component {
   render() {
-    return <h3>There should be an option here to add a photo, too </h3>
+    return <div className="img-thumb img-add" onClick={this.props.onAddPhoto}>Add a photo</div>
   };
 }
 
 class App extends Component {
   constructor(props) {
     super(props);
+    const uuidv4 = require('uuid/v4');
     this.state = {
       photos: [
-        { photoUrl: 'https://source.unsplash.com/random/600x451', description: 'a short description', selected: true },
-        { photoUrl: 'https://source.unsplash.com/random/600x452', description: 'and another short description', selected: false },
-        { photoUrl: 'https://source.unsplash.com/random/600x453', description: 'and another short description', selected: false },
-        { photoUrl: 'https://source.unsplash.com/random/600x454', description: 'and another short description', selected: false },
-        { photoUrl: 'https://source.unsplash.com/random/600x455', description: 'a short description', selected: false },
-        { photoUrl: 'https://source.unsplash.com/random/600x456', description: 'and another short description', selected: false },
-        { photoUrl: 'https://source.unsplash.com/random/600x457', description: 'and another short description', selected: false },
+        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x601', description: 'a short description', selected: true },
+        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x602', description: 'and another short description', selected: false },
+        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x603', description: 'and another short description', selected: false },
+        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x604', description: 'and another short description', selected: false },
       ]
     }
 
     this.handleSelectImage = this.handleSelectImage.bind(this);
+    this.handleAddPhoto = this.handleAddPhoto.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyPress)
   }
 
   handleSelectImage(newImage) {
     let photosClone = [...this.state.photos];
-    photosClone.forEach(photo => photo.photoUrl === newImage.photoUrl ? photo.selected = true : photo.selected = false);
-    this.setState({ photos: photosClone });
+    photosClone.forEach(photo => photo.uuid === newImage.uuid ? photo.selected = true : photo.selected = false);
+    this.setState({ photos: photosClone }); // oooh am I just making a shallow copy in this function and changing it directly...?
+  }
+
+  handleKeyPress(e) {
+    if (e.key > 0 && e.key < 9) {
+      this.handleSelectImage(this.state.photos[e.key-1]);
+      return;
+    }
+
+    // otherwise figure out the index of the current image
+    const current = this.state.photos.filter(photo => photo.selected === true);
+    const currentIndex = this.state.photos.indexOf(current[0]);
+
+    // now for the up and down arrow
+    if (e.key === 'ArrowUp' && currentIndex > 0) {
+      this.handleSelectImage(this.state.photos[currentIndex-1]);
+    } else if (e.key === 'ArrowDown' && currentIndex < this.state.photos.length - 1) {
+      this.handleSelectImage(this.state.photos[currentIndex+1]);
+    }
+  
+  }
+
+  handleAddPhoto() {
+    const photos = [...this.state.photos];
+    const uuidv4 = require('uuid/v4');
+    const newPhoto = { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x601', description: 'a short description', selected: false }
+    photos.push(newPhoto);
+    this.setState({ photos });
   }
 
   render() {
@@ -69,12 +98,15 @@ class App extends Component {
         <DisplayImage 
           photo={this.state.photos.filter(photo => photo.selected)}
         />
+        <p>Click, or use your keyboard arrow keys to choose a new photo</p>
+        <div className="sidebar">
         <ImageThumbs 
           photos={this.state.photos}
           onSelectImage={this.handleSelectImage}
         />
-        <AddPhoto />
-        <p>Click, or use your keyboard arrow keys to choose a photo</p>
+        <AddPhoto 
+          onAddPhoto={this.handleAddPhoto} />
+        </div>
 
       </div>
     );

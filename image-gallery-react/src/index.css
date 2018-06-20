@@ -1,34 +1,56 @@
 html {
   box-sizing: border-box;
 }
-*, *:before, *:after { box-sizing: inherit }
+*, *:before, *:after { box-sizing: border-box }
 
 body {
   /* background: #111; */
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  background: #111;
+  color: #fff;
 }
 .container {
-  background: #fff;
-  padding: 22px;
-  width: 80%;
-  max-width: 800px;
-  margin: 22px auto;
-  box-shadow: 0 2px 15px #000;
-  border-radius: 2px;
+  margin: 44px 22px 44px 272px;
   text-align: center;
+  /* display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center; */
 }
-.imageThumbs {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-between;
+.display-image img {
+  width: 80%;
+  max-width: 600px;
+  transition: 3s;
 }
-.imageThumbs img {
+.sidebar {
+  position: absolute;
+  left: 0;
+  top:0;
+  height: 100vh;
+  min-height: 580px;
+  padding: 22px;
+  overflow-y: scroll;
+  background: #fff;
+}
+.img-thumb {
+  width: 200px;
+  margin: 12px 0;
+}
+.img-thumb img {
   display: inline-block;
-  height: 140px;
-  padding: 12px 0;
+  width: 100%;
+}
+.img-add {
+  color: #333;
+  height: 150px;
+  border: 2px dashed #999;
+  padding: 22px;
+}
+.img-thumb:hover {
+  cursor: pointer;
 }
 .selected {
-  border: 5px solid red;
+  border: 5px solid #999;
 }
