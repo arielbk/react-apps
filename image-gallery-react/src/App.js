@@ -43,16 +43,18 @@ class App extends Component {
     const uuidv4 = require('uuid/v4');
     this.state = {
       photos: [
-        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x601', description: 'a short description', selected: true },
-        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x602', description: 'and another short description', selected: false },
-        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x603', description: 'and another short description', selected: false },
-        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x604', description: 'and another short description', selected: false },
+        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/1600x1200', description: 'a short description', selected: true },
+        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/1600x1201', description: 'and another short description', selected: false },
+        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/1600x1202', description: 'and another short description', selected: false },
+        { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/1600x1203', description: 'and another short description', selected: false },
       ]
     }
 
     this.handleSelectImage = this.handleSelectImage.bind(this);
     this.handleAddPhoto = this.handleAddPhoto.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
+
+    this.randomImageCounter = 4;
   }
 
   componentDidMount() {
@@ -87,9 +89,10 @@ class App extends Component {
   handleAddPhoto() {
     const photos = [...this.state.photos];
     const uuidv4 = require('uuid/v4');
-    const newPhoto = { uuid: uuidv4(), photoUrl: 'https://source.unsplash.com/random/800x601', description: 'a short description', selected: false }
+    const newPhoto = { uuid: uuidv4(), photoUrl: `https://source.unsplash.com/random/1600x${1200+this.randomImageCounter}`, description: 'a short description', selected: false }
     photos.push(newPhoto);
     this.setState({ photos });
+    this.randomImageCounter++;
   }
 
   render() {
