@@ -23,13 +23,12 @@ body {
   flex-wrap: nowrap;
 }
 .container p {
-  margin: 0;
+  margin: 22px 0;
   padding: 0;
 }
 .display-image img {
   flex: 1;
   width: 75%;
-  transition: 3s;
 }
 .sidebar {
   position: absolute;
@@ -43,6 +42,8 @@ body {
 }
 .img-thumb {
   width: 200px;
+  height: 150px;
+  background: #eee;
   margin: 12px 0;
 }
 .img-thumb img {
@@ -55,9 +56,18 @@ body {
   border: 2px dashed #999;
   padding: 22px;
 }
+.img-add:hover {
+  color: #aaa;
+}
 .img-thumb:hover {
   cursor: pointer;
 }
 .selected {
   border: 5px solid #999;
+}
+.display-image {
+  transition: 0.2s cubic-bezier(0, 0.65, 0.34, 0.74);
+}
+.blur {
+  filter: opacity(10%);
 }

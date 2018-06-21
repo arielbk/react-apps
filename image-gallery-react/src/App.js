@@ -62,9 +62,14 @@ class App extends Component {
   }
 
   handleSelectImage(newImage) {
-    let photosClone = [...this.state.photos];
+    const mainImage = document.querySelector('.display-image');
+    let photosClone = JSON.parse(JSON.stringify(this.state.photos));
     photosClone.forEach(photo => photo.uuid === newImage.uuid ? photo.selected = true : photo.selected = false);
-    this.setState({ photos: photosClone }); // oooh am I just making a shallow copy in this function and changing it directly...?
+    mainImage.classList.add('blur');
+    this.setState({ photos: photosClone }, () => {
+      setTimeout(() => mainImage.classList.remove('blur'), 200);
+    }
+  );
   }
 
   handleKeyPress(e) {
