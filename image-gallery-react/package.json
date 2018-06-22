@@ -2,6 +2,7 @@
   "name": "image-gallery-react",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://arielbk.com/image-gallery-react",
   "dependencies": {
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
