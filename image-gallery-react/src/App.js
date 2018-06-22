@@ -13,6 +13,13 @@ class DisplayImage extends Component {
 }
 
 class ImageThumbs extends Component {
+  constructor(props) {
+    super(props);
+    this.setState = {
+      
+    }
+  }
+
   render() {
     return (
     <div className="image-thumbs">
@@ -31,6 +38,7 @@ class ImageThumbs extends Component {
   };
 }
 
+// make this a modal and build it out
 class AddPhoto extends Component {
   render() {
     return <div className="img-thumb img-add" onClick={this.props.onAddPhoto}>Add a photo</div>
@@ -61,6 +69,14 @@ class App extends Component {
     document.addEventListener('keydown', this.handleKeyPress)
   }
 
+  componentDidUpdate() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.style.height = `${(this.state.photos.length+1) * 186}px`;
+    const selected = this.state.photos.filter(photo => photo.selected);
+    const index = this.state.photos.indexOf(selected[0]);
+    sidebar.style.marginTop = `-${index * 170}px`;
+  }
+
   handleSelectImage(newImage) {
     const mainImage = document.querySelector('.display-image');
     let photosClone = JSON.parse(JSON.stringify(this.state.photos));
@@ -73,7 +89,11 @@ class App extends Component {
   }
 
   handleKeyPress(e) {
+    const sideBar = document.querySelector('.sidebar');
     if (e.key > 0 && e.key < 9) {
+      if (e.key > this.state.photos.length) return;
+      sideBar.style.marginTop = `${(Number(e.key)+1) * -186}px`;
+      console.log(sideBar.style.height);
       this.handleSelectImage(this.state.photos[e.key-1]);
       return;
     }
@@ -107,13 +127,15 @@ class App extends Component {
           photo={this.state.photos.filter(photo => photo.selected)}
         />
         <p>Click, or use your keyboard arrow keys to choose a new photo</p>
-        <div className="sidebar">
-        <ImageThumbs 
-          photos={this.state.photos}
-          onSelectImage={this.handleSelectImage}
-        />
-        <AddPhoto 
-          onAddPhoto={this.handleAddPhoto} />
+        <div className="sidebar-container">
+          <div className="sidebar">
+          <ImageThumbs 
+            photos={this.state.photos}
+            onSelectImage={this.handleSelectImage}
+          />
+          <AddPhoto 
+            onAddPhoto={this.handleAddPhoto} />
+          </div>
         </div>
 
       </div>
