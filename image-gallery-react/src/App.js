@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-// import uuid from 'uuid';
-
+import GitHub from './Components/GitHub';
 
 class DisplayImage extends Component {
   render() {
@@ -126,7 +125,7 @@ class App extends Component {
         <DisplayImage 
           photo={this.state.photos.filter(photo => photo.selected)}
         />
-        <p>Click, or use your keyboard arrow keys to choose a new photo</p>
+        <p>Use your keyboard up and down arrow keys to navigate the photos</p>
         <div className="sidebar-container">
           <div className="sidebar">
           <ImageThumbs 
@@ -137,6 +136,7 @@ class App extends Component {
             onAddPhoto={this.handleAddPhoto} />
           </div>
         </div>
+        <GitHub />
 
       </div>
     );

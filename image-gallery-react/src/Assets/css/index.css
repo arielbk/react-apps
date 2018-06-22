@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css?family=Song+Myung');
+
+:root {
+  --navy: rgb(0, 52, 112);
+  --navy: hsla(212, 100%, 22%, 1)
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(../images/dates-background.jpeg);
+  background-size: cover;
+  background-repeat: none;
+  background-attachment: fixed;
+  text-align: center;
+}
+.App {
+  background: #fff;
+  margin: 44px auto;
+  margin-top: 8vh;
+  max-width: 600px;
+  min-height: 470px;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px #000;
+  transition: 0.2s cubic-bezier(0.42, 0, 0.46, 1.76);
+  transform: scale(.95,.95);
+}
+
+.App:hover {
+  transform: scale(1,1)
+}
+.container {
+  padding: 22px;
+}
+h1, h2, h3 {
+  font-family: 'Song Myung', serif;
+  color: var(--navy);
+}
+h1 {
+  font-size: 2.7em;
+  margin: 0;
+  text-align: center;
+  padding-bottom: 2em;
+}
+p {
+  line-height: 1.8;
+}
+.date-picker {
+  width: 100%;
+  background: linear-gradient(to bottom, var(--navy), rgba(0, 0, 0, 0.95));
+  text-align: center;
+}
+.date-picker h2 {
+  color: #fff;
+  display: inline-block;
+  margin: .8em;
+}
+
+.date-picker-form {
+  margin-bottom: 22px;
+  display: block;
+  margin: 0 22px;
+}
+
+select,
+input,
+button {
+  background: #fff;
+  font-size: 1.2em;
+  margin: 0 0.5rem;
+  font-family: 'Song Myung', serif;
+  border: 2px solid var(--navy);
+  padding: 0.8em;
+  transition: .2s;
+}
+
+select:hover, select:focus,
+input:hover,input:focus,
+button:hover,button:focus {
+  background: #fff;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.btn-another {
+  margin: 22px 0;
+  font-size: 1.2em;
+}
+.btn-today {
+  text-align: center;
+  margin: 33px 0 22px 0;
+}
+
+.loading-spinner {
+  height: 16em;
+  background: url(../images/Spinner-0.5s-200px.svg);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 20%;
+}
