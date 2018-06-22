@@ -14,7 +14,7 @@ body {
 }
 .container {
   margin: 0;
-  margin-left: 272px;
+  margin-left: 224px;
   text-align: center;
   height: 100vh;
   min-height: 580px;
@@ -40,21 +40,21 @@ body {
   height: 100vh;
 }
 .sidebar {
-  padding: 33px;
-  padding-top: 93px;
+  padding: 32px;
+  padding-top: 80px;
   overflow: hidden;
   background: #fff;
   transition: 0.5s;
 }
 .img-thumb {
-  width: 200px;
-  height: 150px;
-  margin: 18px 0;
-  
+  width: 160px;
+  height: 120px;
+  margin: 16px 0;
 }
 .img-thumb img {
   display: inline-block;
   width: 100%;
+  border: 1px solid #eee;
   transition: 0.5s;
 }
 .img-thumb img:hover {
@@ -62,12 +62,16 @@ body {
 }
 .img-add {
   color: #333;
-  height: 150px;
+  height: 120px;
   border: 2px dashed #999;
   padding: 22px;
+  transition: 0.5s;
 }
-.img-add:hover {
-  color: #aaa;
+.img-add:hover,
+.img-add-selected {
+  background: #444;
+  color: #fcfaea;
+  filter: sepia(100%);
 }
 .img-thumb:hover {
   cursor: pointer;
