@@ -65,14 +65,14 @@ class App extends Component {
           <h1>Word Counter</h1>
           <h3>Type or paste some text below and list the frequency of each word!</h3>
           <textarea 
-          className='text-input' 
-          value={this.state.textInput} 
-          onChange={this.handleTextInput}
+            className='text-input' 
+            value={this.state.textInput} 
+            onChange={this.handleTextInput}
           />
           <ControlBar 
-          onWordsToShowChange={this.handleWordsToShowChange}
-          wordsToShowValue={this.state.wordsToShow}
-          onSubmit={this.handleSubmit}
+            onWordsToShowChange={this.handleWordsToShowChange}
+            wordsToShowValue={this.state.wordsToShow}
+            onSubmit={this.handleSubmit}
           />
           <Output 
             wordsToShow={this.state.wordsToShow}

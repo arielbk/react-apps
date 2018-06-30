@@ -35,3 +35,18 @@ a.gh-link:hover .gh-container {
 a.gh-link:visited .gh-container {
   color: #fff;
 }
+
+@media(max-width: 880px) {
+  .gh-container {
+    padding: 6px;
+    right: 22px;
+  }
+
+  .gh-container span {
+    display: none;
+  }
+
+  .gh-container:hover span {
+    display: inline;
+  }
+}

@@ -10,7 +10,7 @@ function GitHub(props) {
         <div className='gh-container'>
             <i className="fab fa-github gh-logo"></i>
             <br />
-            Check out the GitHub Repo!
+            <span>Check out the GitHub Repo!</span>
         </div>
       </a>
     )
