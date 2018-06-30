@@ -1,5 +1,4 @@
 // Most of the components for this project are in this file (apart from the GitHub link)
-// They all have headers so you can easily find them
 
 import React, { Component } from 'react';
 import GitHub from './Components/GitHub';
