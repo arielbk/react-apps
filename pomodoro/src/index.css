@@ -1,5 +1,148 @@
+@import url('https://fonts.googleapis.com/css?family=Kalam');
+
+html {
+  background: linear-gradient(rgba(0,0,0,0.8),rgba(0,0,0,0.8)), url(assets/images/tomatoes.jpg) no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+  /* background-repeat: no-repeat; */
+}
+
 body {
-  margin: 0;
+  color: rgb(143, 0, 0);
+  font-family: 'helvetica neue', 'arial', sans-serif;
+  text-align: center;
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+.container {
+  border-radius: 10px;
+  background: #fff;
+  width: 600px;
+  margin: 44px auto;
+  box-shadow: 0 5px 45px #000;
+}
+
+.inner-wrapper {
+  padding: 44px;
+}
+
+select {
+  background: #333;
+  color: #fff;
+  font-size: 1em;
+  margin: 0 12px;
+}
+
+.buttons a {
+  /* background: rgb(0, 120, 0); */
+  background: #fff;
+  /* color: #fff; */
+  color: #333;
+  border-radius: 1px;
+  padding: 1em;
+  font-size: 1em;
+  border: 3px solid rgb(0, 120, 0);
+  width: 10em;
+  margin: 12px;
+  margin-top: 44px;
+  border-radius: 10px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.4);
+  transition: .3s;
+}
+
+.buttons a:hover {
+  /* background: rgb(0, 151, 0); */
+  background: rgb(0, 120, 0);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0,0,0,.4);
+}
+
+.buttons a.reset {
+  /* background: rgb(143, 0, 0); */
+  background: #fff;
+  border: 3px solid rgb(143, 0, 0);
+  /* color: #fff; */
+  color: #333;
+}
+
+.buttons a.reset:hover {
+  /* background: rgb(204, 0, 0); */
+  background: rgb(143, 0, 0);
+  color: #fff;
+}
+
+.buttons a i {
+  margin: 0 8px;
+}
+
+.period-select {
+  margin: 22px;
+}
+
+h2 {
+  font-family: 'Kalam', cursive;
+  display: inline-block;
+  font-size: 6em;
+  margin: 0 auto;
+  height: 1.5em;
+  width: 100%;
+  transition: .2s;
+}
+
+.progress-container {
+  display: flex;
+  border-radius: 10px;
+  background: #333;
+  box-shadow: 0 5px 20px #000 inset;
+  width: 500px;
+  height: 20px;
+  margin: 0 auto;
   padding: 0;
-  font-family: sans-serif;
+}
+
+.progress-bar {
+  border-radius: 10px;
+  transition: 1s;
+  width: 0;
+  background: rgb(143, 0, 0);
+}
+
+.buttons {
+  display: flex;
+}
+
+.buttons > * {
+  flex: 1 1 50%;
+  margin-top: 33px;
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+
+  background: linear-gradient(to bottom, #333, #000);
+  border-radius: 0 0 10px 10px;
+  color: #ccc;
+}
+
+.options > * {
+  flex: 3;
+  flex-wrap: wrap;
+  
+  text-align: left;
+}
+
+.settings-icon {
+  flex: 2;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 2em;
+  color: #777;
 }
