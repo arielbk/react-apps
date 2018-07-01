@@ -1,3 +1,5 @@
+// All state for the app lives here - passed down as props to children components
+
 import React, { Component } from 'react';
 import HeaderTimer from './Components/HeaderTimer';
 import Buttons from './Components/Buttons';
@@ -8,24 +10,22 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // boolean - is the break timer currently active?
+      // boolean - is the break timer currently active? else work timer is
       breakTime: false,
       intervalID: 0,
+      timing: false,
+      timerStarted: false,
 
       // WORK TIMER
       work: {
         length: 1500, // 25*60 --- 25 minutes is default
         timeRemaining: 1500,
-        timing: false, // a flag for start/pause
-        started: false,
       },
 
       // BREAK TIMER
       break: {
         length: 300,
         timeRemaining: 300,
-        timing: false, // timing controlled by start/stop
-        started: false, // controls whether choosing a new time will take effect
       },
 
       styles: {
@@ -36,60 +36,119 @@ class App extends Component {
 
       content: {
         header: 'Pomodoro',
-        startPauseButton: '<i class="fas fa-play"></i> Work',
+        startPauseBtn: <span><i className="fas fa-play"></i> Work</span>,
       },
 
     }
+
+    // function bindings
     this.handleStartPause = this.handleStartPause.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleSetTime = this.handleSetTime.bind(this);
-
-    // this.displayTime = document.querySelector('.display-time');
-    // this.progressBar = document.querySelector('.progress-bar');
-    // this.bell = document.querySelector('.bell');
   }
 
   handleStartPause() {
-    
-    let timer;
 
-    // break or work?
-    this.state.breakTime 
-      ? timer = JSON.parse(JSON.stringify(this.state.break))
-      : timer = JSON.parse(JSON.stringify(this.state.work));
+    // clone active timer and track whether working with break or work timer
+    let timer;
+    let timerName
+    if (this.state.breakTime) {
+      timer = JSON.parse(JSON.stringify(this.state.break));
+      timerName = 'break';
+    } else {
+      timer = JSON.parse(JSON.stringify(this.state.work));
+      timerName = 'work';
+    }
 
     // if this is a fresh timer, set its remaining time to input value
     if (!timer.started) {
       timer.timeRemaining = timer.length;
     }
 
-    timer.started = true;
-    timer.timing = !timer.timing; // toggle whether timing with start and pause
-
+    // clone content to toggle UI
     const content = Array.from(this.state.content);
 
-    let timerName;
-    this.state.breakTime ? timerName = 'break' : timerName = 'work';
+    // pause or play the timer depending on current state
+    let intervalID;
+    if (timer.timing) { // pause the timer
+      clearInterval(intervalID);
+      content.startPauseBtn = <span><i className="fas fa-play"></i> Continue</span>;
+    } else { // run the timer
+      intervalID = setInterval(() => this.timerFunc(timerName), 1000);
+      content.startPauseBtn = <span><i className="fas fa-pause"></i> Pause</span>;
+    }
 
-    // let intervalID;
-    // if (!timer.timing) { // if the timer is not running before click
-    //   intervalID = setInterval(() => this.timerFunc(timerName), 1000);
-    //   content.startPauseButton = `<i class="fas fa-pause"></i> Pause`; // begin timer and display green pause button
-    // } else {
-    //   clearInterval(intervalID);
-    //   content.startPauseButton = `<i class="fas fa-play"></i> Continue`; // i.e. timer is paused
-    // }
+    // timer has now changed, toggle whether it is active or paused
+    timer.started = true;
+    timer.timing = !timer.timing;
 
-    const intervalID = setInterval(() => this.timerFunc(timerName), 1000);
+    this.state.breakTime 
+      ? this.setState({ break: timer, intervalID, content }) 
+      : this.setState({ work: timer, intervalID, content });
+  }
 
-    this.state.breakTime ? this.setState({ break: timer }) : this.setState({ work: timer });
-    this.setState({ intervalID: intervalID, content: content });
+  // timer function called every second while timer is on
+  timerFunc(timer) { // timer passed in is EITHER the work or break timer object
+
+    // clone work or break timer
+    if (timer === 'work') {
+      timer = JSON.parse(JSON.stringify(this.state.work));
+    } else {
+      timer = JSON.parse(JSON.stringify(this.state.break));
+    }
+
+    // if timer ends
+    if (timer.timeRemaining < 1) {
+      this.handleReset();
+
+      // UI changes -- before breaktime toggle!
+      const styles = Array.from(this.state.styles);
+      const content = Array.from(this.state.content);
+      if (this.state.breakTime) { // change ui to reflect work
+        styles.header.color = 'rgb(143,0,0)';
+        content.startPauseBtn = <span><i class="fas fa-play"></i> Work</span>;
+        styles.progressColour = 'rgb(143, 0, 0)';
+      } else { // change ui to reflect break
+        styles.headerColour = 'rgb(0,120,0)';
+        content.playPauseBtn = <span><i class="fas fa-play"></i> Break</span>;
+        styles.progressColour = 'rgb(0, 120, 0)';
+      }
+
+      // toggle whether it is breaktime and set new ui
+      this.setState({ breakTime: !this.state.breakTime, styles, content })
+
+      return; // end function
+    };
+
+
+    // display current time and decrement time by 1
+    const minsRemaining = 
+      (Math.floor((timer.timeRemaining % (60*60)) / 60))
+      // https://stackoverflow.com/questions/8043026/how-to-format-numbers-by-prepending-0-to-single-digit-numbers
+      .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+    const secsRemaining = 
+      (Math.floor((timer.timeRemaining % 60)))
+      .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+
+    const contentClone = Array.from(this.state.content);
+    const stylesClone = Array.from(this.state.styles);
+
+    contentClone.header = `${minsRemaining}:${secsRemaining}`;
+    stylesClone.progressWidth = `${500 - (timer.timeRemaining / timer.length) * 500}px`;
+
+    timer.timeRemaining--;
+
+    this.setState({ content: contentClone, styles: stylesClone, work: timer})
+  }
+
+  changeTimer(newTimer) {
+
   }
 
 // when reset button is pushed or after time runs out
   handleReset() {
 
-    // clearInterval(intervalID);
+    clearInterval(this.state.intervalID);
 
     // progressBar.style.width = 0;
 
@@ -136,76 +195,18 @@ class App extends Component {
     }
   }
 
-// timer function called every second while timer is on
-timerFunc(timer) { // timer passed in is EITHER the work or break timer object
-  if (!timer.timing) {
-    clearInterval(this.state.intervalID);
-    return;
-  }
-
-  console.log('yo');
-
-  if (timer === 'work') {
-    timer = JSON.parse(JSON.stringify(this.state.work));
-  } else {
-    timer = JSON.parse(JSON.stringify(this.state.break));
-  }
-
-  // if timer ends, pass along to another function
-  if (timer.timeRemaining < 1) {
-    this.handleReset();
-    // bell.play();
-    // displayTime.innerText = 'Finished!';
-
-    const stylesClone = Array.from(this.state.styles);
-
-    // UI changes -- before breaktime toggle!
-    if (!this.state.breakTime) {
-      stylesClone.headerColour = 'rgb(0,120,0)';
-      // this.startButton.innerHTML = `<i class="fas fa-play"></i> Break`;
-      stylesClone.progressColour = 'rgb(0, 120, 0)';
-    } else {
-      this.displayTime.style.color = 'rgb(143,0,0)';
-      // this.startButton.innerHTML = `<i class="fas fa-play"></i> Work`;
-      stylesClone.progressColour = 'rgb(143, 0, 0)';
-    }
-
-    // toggle whether it is breaktime and set new styles
-    this.setState({ breakTime: !this.state.breakTime, styles: stylesClone })
-
-    return; // and break out of the function
-  };
-
-
-  // display current time and decrement time by 1
-  const minsRemaining = 
-    (Math.floor((timer.timeRemaining % (60*60)) / 60))
-    // https://stackoverflow.com/questions/8043026/how-to-format-numbers-by-prepending-0-to-single-digit-numbers
-    .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-  const secsRemaining = 
-    (Math.floor((timer.timeRemaining % 60)))
-    .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-
-  const contentClone = Array.from(this.state.content);
-  const stylesClone = Array.from(this.state.styles);
-
-  contentClone.header = `${minsRemaining}:${secsRemaining}`;
-  stylesClone.progressWidth = `${500 - (timer.timeRemaining / timer.length) * 500}px`;
-
-  timer.timeRemaining--;
-
-  this.setState({ content: contentClone, styles: stylesClone, work: timer})
-}
-
   render() {
     return (
       <div className="container">
         <div className="inner-wrapper">
           <HeaderTimer />
-          <ProgressBar />
+          <ProgressBar 
+            colour={this.state.progressColour}
+          />
           <Buttons 
             onStartPause={this.handleStartPause}
             onReset={this.handleReset}
+            content={this.state.content.startPauseBtn}
           />
         </div>
         <Options 
