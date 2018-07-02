@@ -5,15 +5,18 @@ import HeaderTimer from './Components/HeaderTimer';
 import Buttons from './Components/Buttons';
 import Options from './Components/Options';
 import ProgressBar from './Components/ProgressBar';
+import GitHub from './Components/GitHub';
 
 class App extends Component {
+
   // --------------------------------------------------------------------------------------------------------
   //                                           CONSTRUCTOR
   // --------------------------------------------------------------------------------------------------------
+
   constructor(props) {
     super(props);
     this.state = {
-      // boolean - is the work timer currently active? else break timer is
+      // boolean - is the work timer currently active? else break timer is active
       workTime: true,
       intervalID: 0,
       timing: false,
@@ -22,7 +25,7 @@ class App extends Component {
       // WORK TIMER
       work: {
         name: 'work',
-        length: 1500, // 25*60 --- 25 minutes is default
+        length: 1500, // 25*60 -- 25 minutes is default
         timeRemaining: 1500,
       },
 
@@ -73,7 +76,6 @@ class App extends Component {
   // --------------------------------------------------------------------------------------------------------
 
   handlePlayPause() {
-
     // clone active timer and track whether working with break or work timer
     let timer;
     this.state.workTime
@@ -266,6 +268,7 @@ class App extends Component {
           breakDuration={this.state.break.length}
         />
         <audio ref="bell" src="./assets/sounds/bell.wav" type="audio/wav"></audio> 
+        <GitHub />
       </div>
     );
   };
