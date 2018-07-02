@@ -12,7 +12,7 @@ class Options extends Component {
         <div className="period-select period-select-work">
           <label htmlFor="input-time-work">Work period: </label>
           <select 
-            value={this.props.workTime}
+            value={this.props.workDuration}
             onChange={this.props.onSetTime} 
             name="input-time-work" 
             className="input-time-work"
@@ -32,11 +32,11 @@ class Options extends Component {
         <div className="period-select period-select-break">
           <label htmlor="input-time-break">Break period: </label>
           <select 
-            value={this.props.breakTime} 
+            value={this.props.breakDuration} 
             onChange={this.props.onSetTime}
             name="input-time-break" 
             className="input-time-break"
-            ref="workInput"
+            ref="breakInput"
           >
             <option value="5">5s</option>
             <option value="300" defaultValue>5</option>

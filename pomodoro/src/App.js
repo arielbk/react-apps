@@ -45,21 +45,19 @@ class App extends Component {
 
       content: {
         header: 'Pomodoro',
-        startPauseBtn: 'Work',
+        playPauseBtn: 'Work',
       },
 
     }
 
     // function bindings
-    this.handleStartPause = this.handleStartPause.bind(this);
+    this.handlePlayPause = this.handlePlayPause.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleSetTime = this.handleSetTime.bind(this);
-
-    console.log(this.state.content.startPauseBtn);
   }
 
   // --------------------------------------------------------------------------------------------------------
-  //                                           TIMER CLONE
+  //                                           CLONE A TIMER
   // --------------------------------------------------------------------------------------------------------
 
   timerClone(timer = 'work') { // defaults to work timer
@@ -74,7 +72,7 @@ class App extends Component {
   //                                           START/PAUSE TIMER
   // --------------------------------------------------------------------------------------------------------
 
-  handleStartPause() {
+  handlePlayPause() {
 
     // clone active timer and track whether working with break or work timer
     let timer;
@@ -93,10 +91,10 @@ class App extends Component {
     // pause or play the timer depending on current state
     if (timer.timing) { // pause the timer
       clearInterval(this.state.intervalID);
-      content.startPauseBtn = 'Continue';
+      content.playPauseBtn = 'Continue';
     } else { // run the timer and set new intervalID
       this.setState({ intervalID: setInterval(() => this.timerFunc(), 1000) });
-      content.startPauseBtn = 'Pause';
+      content.playPauseBtn = 'Pause';
     }
 
     // timer has now changed, toggle whether it is active or paused
@@ -129,19 +127,22 @@ class App extends Component {
     if (timer.timeRemaining < 1) {
       this.handleReset();
 
-      // UI changes -- before breaktime toggle!
-      if (this.state.workTime) { // change ui to reflect work
-        styles.header.color = 'rgb(143,0,0)';
-        styles.progressBar.background = 'rgb(143, 0, 0)';
-        content.startPauseBtn = 'Work';
-      } else { // change ui to reflect break
+      // UI changes -- before worktime toggle!
+      if (this.state.workTime) { // change ui to reflect next break cycle
         styles.header.color = 'rgb(0,120,0)';
         styles.progressBar.background = 'rgb(0, 120, 0)';
         content.playPauseBtn = 'Break';
+        content.header = this.formatTime(this.state.break.timeRemaining);
+      } else { // change ui to reflect next work cycle
+        styles.header.color = 'rgb(143,0,0)';
+        styles.progressBar.background = 'rgb(143, 0, 0)';
+        content.playPauseBtn = 'Work';
+        content.header = this.formatTime(this.state.work.timeRemaining);
       }
+      styles.progressBar.width = 0;
 
       // toggle whether it is breaktime and set new ui
-      this.setState({ breakTime: !this.state.breakTime, styles, content })
+      this.setState({ workTime: !this.state.workTime, styles, content });
 
       return; // end function
     };
@@ -151,16 +152,7 @@ class App extends Component {
     // immediately decrement the timer we are working with
     timer.timeRemaining--;
 
-    // display current time and decrement time by 1
-    const minsRemaining = 
-      (Math.floor((timer.timeRemaining % (60*60)) / 60))
-      // https://stackoverflow.com/questions/8043026/how-to-format-numbers-by-prepending-0-to-single-digit-numbers
-      .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-    const secsRemaining = 
-      (Math.floor((timer.timeRemaining % 60)))
-      .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
-
-    content.header = `${minsRemaining}:${secsRemaining}`;
+    content.header = this.formatTime(timer.timeRemaining);
     styles.progressBar.width = `${500 - (timer.timeRemaining / timer.length) * 500}px`;
 
     // set new states
@@ -171,30 +163,47 @@ class App extends Component {
   }
 
   // --------------------------------------------------------------------------------------------------------
+  //                                           FORMAT TIME
+  // --------------------------------------------------------------------------------------------------------
+
+  // this will take in seconds and return a string like 03:26
+  formatTime(seconds) {
+    const minsRemaining = 
+      (Math.floor((seconds % (60*60)) / 60))
+      // https://stackoverflow.com/questions/8043026/how-to-format-numbers-by-prepending-0-to-single-digit-numbers
+      .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+    const secsRemaining = 
+      (Math.floor((seconds % 60)))
+      .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
+
+    return `${minsRemaining}:${secsRemaining}`;
+  }
+
+  // --------------------------------------------------------------------------------------------------------
   //                                           HANDLE RESET
   // --------------------------------------------------------------------------------------------------------
 
   // reset all state, if button is pressed then revert to work timer
-  handleReset(resetButton = false) { // just reset by default
+  handleReset(resetButton = false) { // normal reset by default
 
+    // end any running timer function
+    clearInterval(this.state.intervalID);
+
+    // if this reset is from the button, some cosmetic changes are also required...
     if (resetButton) {
       const styles = JSON.parse(JSON.stringify(this.state.styles));
       const content = {...this.state.content};
       
-      styles.progressBar = { width: 0, backgroundColor: 'rgba(143, 0, 0)' }
-      content.startPauseBtn = 'Work';
+      styles.progressBar = { width: 0, backgroundColor: 'rgba(143, 0, 0)' };
+      styles.header = { color: 'rgba(143, 0, 0)' };
+      content.playPauseBtn = 'Work';
       content.header = 'Pomodoro';
 
       this.setState({ workTime: true, styles, content });
     }
 
-    clearInterval(this.state.intervalID);
-
     const workTimer = {...this.state.work};
     const breakTimer = {...this.state.break};
-
-    // so that timer does not continue to run in bg
-    if (workTimer.timing || breakTimer.timing) this.handleStartPause();
 
     // reset all values
     workTimer.timeRemaining = workTimer.length;
@@ -215,17 +224,15 @@ class App extends Component {
   handleSetTime(event) {
 
     let timer;
-
-    if ((event.target.ref === 'workInput' && this.state.workTime === true) ||
-        (event.target.ref === 'breakInput' && this.state.workTime === false)) {
+    if (event.target.classList.value === 'input-time-work') {
       timer = this.timerClone();
     } else {
-      timer = this.timerClone(false);
+      timer = this.timerClone('break');
     }
 
     timer.length = Number(event.target.value);
 
-    if (this.state.workTime) {
+    if (timer.name === 'work') {
       this.setState({ work: timer })
     } else {
       this.setState({ break: timer })
@@ -242,25 +249,23 @@ class App extends Component {
         <div className="inner-wrapper">
           <HeaderTimer 
             content={this.state.content.header}
+            style={this.state.styles.header}
           />
           <ProgressBar 
             style={this.state.styles.progressBar}
           />
           <Buttons 
-            onStartPause={this.handleStartPause}
+            onPlayPause={this.handlePlayPause}
             onReset={() => this.handleReset(true)}
-            content={this.state.content.startPauseBtn}
+            content={this.state.content.playPauseBtn}
           />
         </div>
         <Options 
           onSetTime={this.handleSetTime}
-          workTime={this.state.work.length}
-          breakTime={this.state.break.length}
+          workDuration={this.state.work.length}
+          breakDuration={this.state.break.length}
         />
-        {/* <audio ref="bell">
-          <source src="./assets/sounds/bell.wav" type="audio/wav"> 
-          </source>
-        </audio> */}
+        <audio ref="bell" src="./assets/sounds/bell.wav" type="audio/wav"></audio> 
       </div>
     );
   };
