@@ -7,6 +7,9 @@ import Options from './Components/Options';
 import ProgressBar from './Components/ProgressBar';
 
 class App extends Component {
+  // --------------------------------------------------------------------------------------------------------
+  //                                           CONSTRUCTOR
+  // --------------------------------------------------------------------------------------------------------
   constructor(props) {
     super(props);
     this.state = {
@@ -36,7 +39,7 @@ class App extends Component {
         },
         progressBar: {
           width: 0,
-        backgroundColor: 'rgba(143, 0, 0)',
+          backgroundColor: 'rgba(143, 0, 0)',
         }
       },
 
@@ -51,7 +54,13 @@ class App extends Component {
     this.handleStartPause = this.handleStartPause.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleSetTime = this.handleSetTime.bind(this);
+
+    console.log(this.state.content.startPauseBtn);
   }
+
+  // --------------------------------------------------------------------------------------------------------
+  //                                           TIMER CLONE
+  // --------------------------------------------------------------------------------------------------------
 
   timerClone(timer = 'work') { // defaults to work timer
     if (timer === 'work') {
@@ -60,6 +69,10 @@ class App extends Component {
       return {...this.state.break};
     }
   }
+
+  // --------------------------------------------------------------------------------------------------------
+  //                                           START/PAUSE TIMER
+  // --------------------------------------------------------------------------------------------------------
 
   handleStartPause() {
 
@@ -94,6 +107,10 @@ class App extends Component {
       ? this.setState({ work: timer, content }) 
       : this.setState({ break: timer, content });
   }
+
+  // --------------------------------------------------------------------------------------------------------
+  //                                           TIMER FUNCTION
+  // --------------------------------------------------------------------------------------------------------
 
   // timer function called every second while timer is on
   timerFunc() { // timer passed in is EITHER the work or break timer object
@@ -131,6 +148,9 @@ class App extends Component {
 
     // V  TIMER IS STILL RUNNING  V
 
+    // immediately decrement the timer we are working with
+    timer.timeRemaining--;
+
     // display current time and decrement time by 1
     const minsRemaining = 
       (Math.floor((timer.timeRemaining % (60*60)) / 60))
@@ -143,8 +163,6 @@ class App extends Component {
     content.header = `${minsRemaining}:${secsRemaining}`;
     styles.progressBar.width = `${500 - (timer.timeRemaining / timer.length) * 500}px`;
 
-    timer.timeRemaining--;
-
     // set new states
     this.setState({ content, styles })
     this.state.workTime
@@ -152,32 +170,47 @@ class App extends Component {
       : this.setState({ break: timer });
   }
 
-// reset all state, if button is pressed then revert to work timer
+  // --------------------------------------------------------------------------------------------------------
+  //                                           HANDLE RESET
+  // --------------------------------------------------------------------------------------------------------
+
+  // reset all state, if button is pressed then revert to work timer
   handleReset(resetButton = false) { // just reset by default
 
-    if(resetButton) {
-      this.setState({ workTimer: true });
-      // more needed here, pass it to a function?
+    if (resetButton) {
+      const styles = JSON.parse(JSON.stringify(this.state.styles));
+      const content = {...this.state.content};
+      
+      styles.progressBar = { width: 0, backgroundColor: 'rgba(143, 0, 0)' }
+      content.startPauseBtn = 'Work';
+      content.header = 'Pomodoro';
+
+      this.setState({ workTime: true, styles, content });
     }
 
     clearInterval(this.state.intervalID);
 
-    const state = JSON.parse(JSON.stringify(this.state));
+    const workTimer = {...this.state.work};
+    const breakTimer = {...this.state.break};
 
     // so that timer does not continue to run in bg
-    if (state.work.timing || state.break.timing) this.startPause();
+    if (workTimer.timing || breakTimer.timing) this.handleStartPause();
 
     // reset all values
-    state.work.timeRemaining = state.work.length;
-    state.work.started = false;
-    state.work.timing = false;
+    workTimer.timeRemaining = workTimer.length;
+    workTimer.started = false;
+    workTimer.timing = false;
     // stateClone.break.length = inputTimeBreak.value * 60;
-    state.break.timeRemaining = state.break.length;
-    state.break.started = false;
-    state.break.timing = false;
+    breakTimer.timeRemaining = breakTimer.length;
+    breakTimer.started = false;
+    breakTimer.timing = false;
 
-    this.setState(state);
+    this.setState({ work: workTimer, break: breakTimer });
   }
+
+  // --------------------------------------------------------------------------------------------------------
+  //                                           HANDLE SET TIME
+  // --------------------------------------------------------------------------------------------------------
 
   handleSetTime(event) {
 
@@ -199,17 +232,23 @@ class App extends Component {
     }
   }
 
+  // --------------------------------------------------------------------------------------------------------
+  //                                           RENDER
+  // --------------------------------------------------------------------------------------------------------
+
   render() {
     return (
       <div className="container">
         <div className="inner-wrapper">
-          <HeaderTimer />
+          <HeaderTimer 
+            content={this.state.content.header}
+          />
           <ProgressBar 
-            colour={this.state.progressColour}
+            style={this.state.styles.progressBar}
           />
           <Buttons 
             onStartPause={this.handleStartPause}
-            onReset={this.handleReset}
+            onReset={() => this.handleReset(true)}
             content={this.state.content.startPauseBtn}
           />
         </div>
@@ -218,10 +257,10 @@ class App extends Component {
           workTime={this.state.work.length}
           breakTime={this.state.break.length}
         />
-        <audio ref="bell">
+        {/* <audio ref="bell">
           <source src="./assets/sounds/bell.wav" type="audio/wav"> 
           </source>
-        </audio>
+        </audio> */}
       </div>
     );
   };

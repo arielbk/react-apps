@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 class HeaderTimer extends Component {
   render() {
     return (
-      <h2 className="display-time" ref="display-time">Pomodoro</h2>
+      <h2 className="display-time" ref="display-time">{this.props.content}</h2>
     );
   }
 }
