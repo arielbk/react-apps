@@ -10,33 +10,39 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // boolean - is the break timer currently active? else work timer is
-      breakTime: false,
+      // boolean - is the work timer currently active? else break timer is
+      workTime: true,
       intervalID: 0,
       timing: false,
       timerStarted: false,
 
       // WORK TIMER
       work: {
+        name: 'work',
         length: 1500, // 25*60 --- 25 minutes is default
         timeRemaining: 1500,
       },
 
       // BREAK TIMER
       break: {
+        name: 'break',
         length: 300,
         timeRemaining: 300,
       },
 
       styles: {
-        headerColour: 'rgb(143, 0, 0)',
-        progressWidth: 0,
-        progressColour: 'rgba(143, 0, 0)',
+        header: {
+          color: 'rgb(143, 0, 0)',
+        },
+        progressBar: {
+          width: 0,
+        backgroundColor: 'rgba(143, 0, 0)',
+        }
       },
 
       content: {
         header: 'Pomodoro',
-        startPauseBtn: <span><i className="fas fa-play"></i> Work</span>,
+        startPauseBtn: 'Work',
       },
 
     }
@@ -47,18 +53,21 @@ class App extends Component {
     this.handleSetTime = this.handleSetTime.bind(this);
   }
 
+  timerClone(timer = 'work') { // defaults to work timer
+    if (timer === 'work') {
+      return {...this.state.work};
+    } else {
+      return {...this.state.break};
+    }
+  }
+
   handleStartPause() {
 
     // clone active timer and track whether working with break or work timer
     let timer;
-    let timerName
-    if (this.state.breakTime) {
-      timer = JSON.parse(JSON.stringify(this.state.break));
-      timerName = 'break';
-    } else {
-      timer = JSON.parse(JSON.stringify(this.state.work));
-      timerName = 'work';
-    }
+    this.state.workTime
+      ? timer = this.timerClone('work')
+      : timer = this.timerClone('break');
 
     // if this is a fresh timer, set its remaining time to input value
     if (!timer.started) {
@@ -66,52 +75,52 @@ class App extends Component {
     }
 
     // clone content to toggle UI
-    const content = Array.from(this.state.content);
+    const content = {...this.state.content};
 
     // pause or play the timer depending on current state
-    let intervalID;
     if (timer.timing) { // pause the timer
-      clearInterval(intervalID);
-      content.startPauseBtn = <span><i className="fas fa-play"></i> Continue</span>;
-    } else { // run the timer
-      intervalID = setInterval(() => this.timerFunc(timerName), 1000);
-      content.startPauseBtn = <span><i className="fas fa-pause"></i> Pause</span>;
+      clearInterval(this.state.intervalID);
+      content.startPauseBtn = 'Continue';
+    } else { // run the timer and set new intervalID
+      this.setState({ intervalID: setInterval(() => this.timerFunc(), 1000) });
+      content.startPauseBtn = 'Pause';
     }
 
     // timer has now changed, toggle whether it is active or paused
     timer.started = true;
     timer.timing = !timer.timing;
 
-    this.state.breakTime 
-      ? this.setState({ break: timer, intervalID, content }) 
-      : this.setState({ work: timer, intervalID, content });
+    this.state.workTime 
+      ? this.setState({ work: timer, content }) 
+      : this.setState({ break: timer, content });
   }
 
   // timer function called every second while timer is on
-  timerFunc(timer) { // timer passed in is EITHER the work or break timer object
+  timerFunc() { // timer passed in is EITHER the work or break timer object
 
-    // clone work or break timer
-    if (timer === 'work') {
-      timer = JSON.parse(JSON.stringify(this.state.work));
-    } else {
-      timer = JSON.parse(JSON.stringify(this.state.break));
-    }
+    // clone active timer and track whether working with break or work timer
+    let timer;
+    this.state.workTime
+      ? timer = this.timerClone('work')
+      : timer = this.timerClone('break');
+
+    // content and styles to reset
+    const content = {...this.state.content};
+    const styles = JSON.parse(JSON.stringify(this.state.styles)); // deep clone
 
     // if timer ends
     if (timer.timeRemaining < 1) {
       this.handleReset();
 
       // UI changes -- before breaktime toggle!
-      const styles = Array.from(this.state.styles);
-      const content = Array.from(this.state.content);
-      if (this.state.breakTime) { // change ui to reflect work
+      if (this.state.workTime) { // change ui to reflect work
         styles.header.color = 'rgb(143,0,0)';
-        content.startPauseBtn = <span><i class="fas fa-play"></i> Work</span>;
-        styles.progressColour = 'rgb(143, 0, 0)';
+        styles.progressBar.background = 'rgb(143, 0, 0)';
+        content.startPauseBtn = 'Work';
       } else { // change ui to reflect break
-        styles.headerColour = 'rgb(0,120,0)';
-        content.playPauseBtn = <span><i class="fas fa-play"></i> Break</span>;
-        styles.progressColour = 'rgb(0, 120, 0)';
+        styles.header.color = 'rgb(0,120,0)';
+        styles.progressBar.background = 'rgb(0, 120, 0)';
+        content.playPauseBtn = 'Break';
       }
 
       // toggle whether it is breaktime and set new ui
@@ -120,6 +129,7 @@ class App extends Component {
       return; // end function
     };
 
+    // V  TIMER IS STILL RUNNING  V
 
     // display current time and decrement time by 1
     const minsRemaining = 
@@ -130,68 +140,62 @@ class App extends Component {
       (Math.floor((timer.timeRemaining % 60)))
       .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
 
-    const contentClone = Array.from(this.state.content);
-    const stylesClone = Array.from(this.state.styles);
-
-    contentClone.header = `${minsRemaining}:${secsRemaining}`;
-    stylesClone.progressWidth = `${500 - (timer.timeRemaining / timer.length) * 500}px`;
+    content.header = `${minsRemaining}:${secsRemaining}`;
+    styles.progressBar.width = `${500 - (timer.timeRemaining / timer.length) * 500}px`;
 
     timer.timeRemaining--;
 
-    this.setState({ content: contentClone, styles: stylesClone, work: timer})
+    // set new states
+    this.setState({ content, styles })
+    this.state.workTime
+      ? this.setState({ work: timer })
+      : this.setState({ break: timer });
   }
 
-  changeTimer(newTimer) {
+// reset all state, if button is pressed then revert to work timer
+  handleReset(resetButton = false) { // just reset by default
 
-  }
-
-// when reset button is pushed or after time runs out
-  handleReset() {
+    if(resetButton) {
+      this.setState({ workTimer: true });
+      // more needed here, pass it to a function?
+    }
 
     clearInterval(this.state.intervalID);
 
-    // progressBar.style.width = 0;
+    const state = JSON.parse(JSON.stringify(this.state));
 
-    const stateClone = JSON.parse(JSON.stringify(this.state));
-
-    // // so that timer does not continue to run in bg
-    // if (this.state.work.timing || this.state.break.timing) startPause(this.state.timerObj);
+    // so that timer does not continue to run in bg
+    if (state.work.timing || state.break.timing) this.startPause();
 
     // reset all values
-    // stateClone.work.length = inputTimeWork.value * 60;
-    stateClone.work.timeRemaining = stateClone.work.length;
-    stateClone.work.started = false;
-    stateClone.work.timing = false;
+    state.work.timeRemaining = state.work.length;
+    state.work.started = false;
+    state.work.timing = false;
     // stateClone.break.length = inputTimeBreak.value * 60;
-    stateClone.break.timeRemaining = stateClone.break.length;
-    stateClone.break.started = false;
-    stateClone.break.timing = false;
+    state.break.timeRemaining = state.break.length;
+    state.break.started = false;
+    state.break.timing = false;
 
-    this.setState(stateClone);
-
-    // displayTime.innerText = '';
-    console.log('reset');
+    this.setState(state);
   }
 
   handleSetTime(event) {
 
-    let currentTimer;
-    let breakTime;
+    let timer;
 
-    if (event.target.classList.value === 'input-time-work') {
-      currentTimer = JSON.parse(JSON.stringify(this.state.work));
-      breakTime = false;
+    if ((event.target.ref === 'workInput' && this.state.workTime === true) ||
+        (event.target.ref === 'breakInput' && this.state.workTime === false)) {
+      timer = this.timerClone();
     } else {
-      currentTimer = JSON.parse(JSON.stringify(this.state.break));
-      breakTime = true;
+      timer = this.timerClone(false);
     }
 
-    currentTimer.length = Number(event.target.value);
+    timer.length = Number(event.target.value);
 
-    if (breakTime) {
-      this.setState({ break: currentTimer })
+    if (this.state.workTime) {
+      this.setState({ work: timer })
     } else {
-      this.setState({ work: currentTimer })
+      this.setState({ break: timer })
     }
   }
 

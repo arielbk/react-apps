@@ -16,6 +16,7 @@ class Options extends Component {
             onChange={this.props.onSetTime} 
             name="input-time-work" 
             className="input-time-work"
+            ref="workInput"
           >
             <option value="10">10s</option>
             <option value="300">5</option>
@@ -35,6 +36,7 @@ class Options extends Component {
             onChange={this.props.onSetTime}
             name="input-time-break" 
             className="input-time-break"
+            ref="workInput"
           >
             <option value="5">5s</option>
             <option value="300" defaultValue>5</option>
