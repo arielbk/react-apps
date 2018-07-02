@@ -5,7 +5,7 @@ import '../assets/css/github.css';
 
 function GitHub(props) {
     return (
-      <a className='gh-link' href='https://github.com/arielbk/react-apps/tree/master/image-gallery-react/src'>
+      <a className='gh-link' href='https://github.com/arielbk/react-apps/tree/master/pomodoro/src'>
         <div className='gh-container'>
             <i className="fab fa-github gh-logo"></i>
             <br />
