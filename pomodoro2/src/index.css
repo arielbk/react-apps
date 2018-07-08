@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto|Rubik:700');
+
+:root {
+  --lightgrey: #cacaca;
+  --medgrey: #3b3b3b;
+  --darkgrey: #202020;
+  --darkred: #50191a;
+  --lightred: #cf4547;
+  --lightgreen: #8df37a;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background: #111;
+  color: var(--medgrey);
+}
+
+.app {
+  max-width: 940px;
+  background: var(--darkgrey);
+  box-shadow: 0 12px 50px rgba(0,0,0,.6);
+  border-radius: 5px;
+  margin: 30px auto 30px auto;
+  padding: 32px 80px 32px 80px;
+}
+
+h1, h2 {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 700;
+  color: var(--lightgrey);
+  text-transform: lowercase;
+}
+
+h1.main-header {
+  font-size: 72px;
+  text-align: center;
+  margin: 0;
+}
+
+.top-divider {
+  height: 5px;
+  width: 100%;
+  background: var(--darkred);
+  border-radius: 5px;
+  margin: 20px 0;
+}
+
+.main-content {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 40px 0;
+}
+
+.button-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--lightred);
+  width: 212px;
+  height: 212px;
+  border-radius: 100%;
+  font-size: 64px;
+}
+
+.button-progress-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--darkgrey);
+  color: var(--lightred);
+  width: 132px;
+  height: 132px;
+  border-radius: 100%;
+  font-size: 64px;
+}
+
+.show-time,
+.minutes,
+.seconds-group {
+  display: inline-block;
+}
+
+.minutes {
+  font-size: 144px;
+  color: var(--lightgreen);
+}
+
+.seconds {
+  font-size: 64px;
+  color: #999;
+}
+
+.milliseconds{
+  font-size: 36px;
+}
+
+.settings {
+  display: flex;
+}
