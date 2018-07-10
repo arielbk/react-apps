@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto|Rubik:700');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400|Rubik:700');
 
 :root {
   --lightgrey: #cacaca;
@@ -7,6 +7,7 @@
   --darkred: #50191a;
   --lightred: #cf4547;
   --lightgreen: #8df37a;
+  --darkgreen: #214a19;
 }
 
 *, *::before, *::after {
@@ -17,6 +18,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
+  font-size: 18px;
   background: #111;
   color: var(--medgrey);
 }
@@ -26,8 +28,8 @@ body {
   background: var(--darkgrey);
   box-shadow: 0 12px 50px rgba(0,0,0,.6);
   border-radius: 5px;
-  margin: 30px auto 30px auto;
-  padding: 32px 80px 32px 80px;
+  margin: 30px auto 60px auto;
+  padding: 32px 8.5% 32px 8.5%;
 }
 
 h1, h2 {
@@ -46,16 +48,35 @@ h1.main-header {
 .top-divider {
   height: 5px;
   width: 100%;
-  background: var(--darkred);
+  background: var(--medgrey);
   border-radius: 5px;
   margin: 20px 0;
 }
 
 .main-content {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  margin: 40px 0;
+  margin: 60px 0 40px 0;
+}
+
+.buttons-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.close-button {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  font-size: 2em;
+  font-weight: 900;
+}
+
+.close-button:hover {
+  color: var(--lightred);
+  cursor: pointer;
 }
 
 .button-progress {
@@ -63,11 +84,16 @@ h1.main-header {
   align-items: center;
   justify-content: center;
 
-  background: var(--lightred);
-  width: 212px;
-  height: 212px;
+  /* background: var(--darkgreen); */
+  width: 150px;
+  height: 150px;
   border-radius: 100%;
   font-size: 64px;
+  transition: 1s;
+}
+
+.button-progress:hover {
+  cursor: pointer;
 }
 
 .button-progress-inner {
@@ -77,10 +103,29 @@ h1.main-header {
 
   background: var(--darkgrey);
   color: var(--lightred);
-  width: 132px;
-  height: 132px;
+  width: 106px;
+  height: 106px;
   border-radius: 100%;
   font-size: 64px;
+}
+
+.progress-canvas {
+  height: 150px;
+  width: 150px;
+  border-radius: 100%;
+
+  position: absolute;
+  top: 0;
+  left:0;
+  transition: border .5s;
+}
+
+.progress-canvas:hover {
+  cursor: pointer;
+}
+
+.fa-play {
+  margin-left: 1rem;
 }
 
 .show-time,
@@ -89,20 +134,108 @@ h1.main-header {
   display: inline-block;
 }
 
+.seconds-group {
+  margin-left: 10px;
+}
+
 .minutes {
   font-size: 144px;
-  color: var(--lightgreen);
+  letter-spacing: -.05em;
 }
 
 .seconds {
   font-size: 64px;
   color: #999;
+  text-align: right;
 }
 
 .milliseconds{
   font-size: 36px;
+  text-align: right;
 }
 
-.settings {
-  display: flex;
+.counters,
+.counter-pomodoros,
+.counter-group {
+  display: inline-block;
 }
+
+.counter-pomodoros {
+  font-size: 122px;
+  color: #999;
+  font-weight: 200;
+  letter-spacing: -.05em;
+}
+
+.counter-group {
+  margin-left: 10px;
+}
+
+.counter-goal {
+  font-size: 48px;
+  text-align: right;
+  color: var(--medgrey);
+}
+
+.counter-text {
+  font-size: 18px;
+  text-align: right;
+}
+
+
+/* this is just a marker for when I come to it... and so it looks okay for now */
+.settings {
+  color: var(--lightred);
+  text-align: center;
+  text-decoration: underline;
+  margin-top: 60px;
+  opacity: .4;
+}
+
+.timer-titles {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timer-title {
+  text-transform: lowercase;
+  transition: color .5s;
+  width: 220px;
+  height: 45px;
+  text-align: center;
+  padding: .5em;
+  border-bottom: 6px solid var(--medgrey);
+  margin-bottom: 20px;
+}
+
+.work-title:hover {
+  color: var(--lightgrey);
+  border-bottom: 6px solid var(--lightred) !important;
+  cursor: pointer;
+}
+
+.break-title:hover {
+  cursor: pointer;
+  color: var(--lightgrey);
+  border-bottom: 6px solid var(--lightgreen) !important;
+}
+
+.timer-title {
+  position: relative;
+}
+
+.timer-title i {
+  position:absolute;
+  left: 1em;
+  opacity: 0;
+  margin-right: 10px;
+  transition: 0.1s;
+  color: var(--medgrey)
+}
+
+.timer-title:hover i {
+  opacity: 1;
+
+}
+
