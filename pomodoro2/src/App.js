@@ -89,10 +89,12 @@ function Counters(props) {
   )
 }
 
-function SoundSettings(props) {
+function TimerTitles(props) {
   return (
-    <div className="settings">
-      <h2>settings will go below</h2>
+    <div className="timer-titles">
+      <div className="timer-title work-title" style={props.titleStyles.workTitle}><i className="fas fa-cog" /><span>Work</span></div>
+      <div className="timer-title break-title" style={props.titleStyles.breakTitle}><i className="fas fa-cog" /><span>Break</span></div>
+      <div className="timer-title break-title" style={props.titleStyles.longBreakTitle}><i className="fas fa-cog" /><span>Long Break</span></div>
     </div>
   )
 }
@@ -146,6 +148,20 @@ class App extends Component {
         },
         background: {
           background: 'var(--darkred)',
+        },
+        titles: {
+          workTitle: {
+            color: 'var(--lightred)',
+            borderBottom: '6px solid var(--darkred)',
+          },
+          breakTitle: {
+            color: '',
+            borderBottom: '',
+          },
+          longBreakTitle: {
+            color: '',
+            borderBottom: '',
+          }
         }
       },
 
@@ -251,10 +267,36 @@ class App extends Component {
       this.handleReset();
 
       // UI changes -- before worktime toggle!
-      if (this.state.workTime) { // change ui to reflect next break cycle
+      // must be a better way than all this repetition...
+      if (this.state.workTime &&
+          ((this.state.pomodoros + 1) % this.state.pomodoroSet) === 0 ) {
+        styles.titles.workTitle.color = '';
+        styles.titles.workTitle.borderBottom = '';
+        styles.titles.breakTitle.color = '';
+        styles.titles.breakTitle.borderBottom = '';
+        styles.titles.longBreakTitle.color = 'var(--lightgreen)';
+        styles.titles.longBreakTitle.borderBottom = '6px solid var(--darkgreen)';
+        
+        styles.font.color = 'var(--lightgreen)';
+        styles.background.background = 'var(--darkgreen)';
+      } else if (this.state.workTime) { // change ui to reflect next break cycle
+        styles.titles.workTitle.color = '';
+        styles.titles.workTitle.borderBottom = '';
+        styles.titles.breakTitle.color = 'var(--lightgreen)';
+        styles.titles.breakTitle.borderBottom = '6px solid var(--darkgreen)';
+        styles.titles.longBreakTitle.color = '';
+        styles.titles.longBreakTitle.borderBottom = '';
+        
         styles.font.color = 'var(--lightgreen)';
         styles.background.background = 'var(--darkgreen)';
       } else { // change ui to reflect next work cycle
+        styles.titles.workTitle.color = 'var(--lightred)';
+        styles.titles.workTitle.borderBottom = '6px solid var(--darkred)';
+        styles.titles.breakTitle.color = '';
+        styles.titles.breakTitle.borderBottom = '';
+        styles.titles.longBreakTitle.color = '';
+        styles.titles.longBreakTitle.borderBottom = '';
+        
         styles.font.color = 'var(--lightred)';
         styles.background.background = 'var(--darkred)';
       }
@@ -354,6 +396,13 @@ class App extends Component {
     if (resetButton) {
       const styles = JSON.parse(JSON.stringify(this.state.styles));
 
+      styles.titles.workTitle.color = 'var(--lightred)';
+      styles.titles.workTitle.borderBottom = '6px solid var(--darkred)';
+      styles.titles.breakTitle.color = '';
+      styles.titles.breakTitle.borderBottom = '';
+      styles.titles.longBreakTitle.color = '';
+      styles.titles.longBreakTitle.borderBottom = '';
+
       // icon to change
       const playPauseIcon = 'fas fa-play';
       
@@ -418,7 +467,10 @@ class App extends Component {
             goal={this.state.goal}
           />
         </div>
-        <SoundSettings />
+        <TimerTitles
+          titleStyles={this.state.styles.titles}
+        />
+        {/* <audio src="bell.mp3" controls /> */}
       </div>
     );
   }
