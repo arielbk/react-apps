@@ -1,23 +1,68 @@
+// still need to add timing of milliseconds -- efficiently! also make progress circle smoother
+// add settings section with custom sliders for time and different sounds
+// sounds
+// responsiveness for smaller screens and mobile-specific features
+
 import React, { Component } from 'react';
 
   // -----------------------------------------------------------------------------------------
   //                                                                              COMPONENTS
   // -----------------------------------------------------------------------------------------
 
-function ButtonProgress(props) {
-  return (
-  <div className="buttons-container">  
-    <div className="close-button" onClick={props.onReset}>✕</div>
-    <div 
-      className="button-progress"
-      onClick={props.handleClick}
-    >
-      <div className="button-progress-inner">
-        <i className={props.faIcon} style={props.playPauseColor}></i>
+class ButtonProgress extends Component {
+  constructor(props) {
+    super(props);
+    
+    this.progressCircle = this.progressCircle.bind(this);
+  }
+
+  componentDidMount() {
+    this.circle = this.refs.circle.getContext('2d');
+
+    this.startPoint = 4.72;
+
+    this.cw = this.circle.canvas.width;
+    this.ch = this.circle.canvas.height;
+
+    requestAnimationFrame(this.progressCircle);
+  }
+
+  componentDidUpdate(){
+    requestAnimationFrame(this.progressCircle);
+  }
+
+  progressCircle() {
+
+    let endPoint = ((this.props.progressPercent/100) * Math.PI * 2);
+
+    this.circle.clearRect(0,0,this.cw,this.ch); // clear canvas every time function is called
+
+    this.circle.lineWidth = 22; // stroke size
+    this.props.workTime ? this.circle.strokeStyle = '#cf4547' : this.circle.strokeStyle = '#8df37a';
+
+    this.circle.beginPath();
+    this.circle.arc(76,76,65,this.startPoint,endPoint+this.startPoint); // x, y, radius, start, end
+
+    this.circle.stroke(); // fill stroke
+  }
+
+  render() {
+      return (
+    <div className="buttons-container">  
+      <div className="close-button" onClick={this.props.onReset}>✕</div>
+      <div 
+        className="button-progress"
+        onClick={this.props.handleClick}
+        style={this.props.backgroundColor}
+      >
+        <div className="button-progress-inner" style={this.props.fontColor}>
+          <i className={this.props.faIcon} style={this.props.playPauseColor}></i>
+        </div>
       </div>
+      <canvas height="152" width="152" ref="circle" className="progress-canvas" onClick={this.props.handleClick} />
     </div>
-  </div>
-  );
+    );
+  }
 }
 
 function ShowTime(props) {
@@ -47,7 +92,7 @@ function Counters(props) {
 function SoundSettings(props) {
   return (
     <div className="settings">
-      <h2>Settings</h2>
+      <h2>settings will go below</h2>
     </div>
   )
 }
@@ -68,6 +113,8 @@ class App extends Component {
       timing: false,
       timerStarted: false,
 
+      progressPercent: 0,
+
       pomodoros: 0,
       goal: 9,
       pomodoroSet: 2, // number of pomodoros before a long break
@@ -75,30 +122,30 @@ class App extends Component {
       // WORK TIMER
       work: {
         name: 'work',
-        length: 10, // 25*60 -- 25 minutes is default - set to 1500
-        timeRemaining: 10000,
+        duration: 10, // 25*60 -- 25 minutes is default - set to 1500
+        timeRemaining: 10,
       },
 
       // BREAK TIMER
       break: {
         name: 'break',
-        length: 5,
-        timeRemaining: 5000,
+        duration: 5,
+        timeRemaining: 5,
       },
 
       // LONG BREAK TIMER
       longBreak: {
         name: 'longBreak',
-        length: 15,
-        timeRemaining: 15000,
+        duration: 15,
+        timeRemaining: 15,
       },
 
       styles: {
         font: {
           color: 'var(--lightred)',
         },
-        playPause: {
-          color: 'var(--lightgreen)',
+        background: {
+          background: 'var(--darkred)',
         }
       },
 
@@ -114,6 +161,14 @@ class App extends Component {
     this.handlePlayPause = this.handlePlayPause.bind(this);
     this.handleReset = this.handleReset.bind(this);
   }
+
+  // -----------------------------------------------------------------------------------------
+  //                                                                      LIFE CYCLE EVENTS
+  // -----------------------------------------------------------------------------------------
+
+  // componentDidMount() {
+  //   this.progressCircle();
+  // }
 
   // -----------------------------------------------------------------------------------------
   //                                                                              FUNCTIONS
@@ -136,25 +191,25 @@ class App extends Component {
 
     // if this is a fresh timer, set its remaining time to input value
     if (!timer.started) {
-      timer.timeRemaining = timer.length;
+      timer.timeRemaining = timer.duration;
     }
 
     // pause or play the timer depending on current state
     if (timer.timing) { // pause the timer
       clearInterval(this.state.intervalID);
     } else { // run the timer and set new intervalID
-      this.setState({ intervalID: setInterval(() => this.timerFunc(), 1) });
+      this.setState({ intervalID: setInterval(() => this.timerFunc(), 1000) });
     }
 
     // timer has now changed, toggle whether it is active or paused
     timer.started = true;
     timer.timing = !timer.timing;
 
-    // styles to reset
-    const styles = JSON.parse(JSON.stringify(this.state.styles)); // deep clone
-    timer.timing
-      ? styles.playPause.color = 'var(--lightred)'
-      : styles.playPause.color = 'var(--lightgreen)';
+    // // styles to reset
+    // const styles = JSON.parse(JSON.stringify(this.state.styles)); // deep clone
+    // timer.timing
+    //   ? styles.playPause.color = 'var(--lightred)'
+    //   : styles.playPause.color = 'var(--lightgreen)';
 
     // icon to change
     let playPauseIcon = {...this.state.playPauseIcon};
@@ -163,11 +218,11 @@ class App extends Component {
       : playPauseIcon = 'fas fa-play';
 
     if (this.state.longBreakTime) {
-      this.setState({ longBreak: timer, styles, playPauseIcon }) 
+      this.setState({ longBreak: timer, playPauseIcon }) 
     } else if (this.state.workTime) {
-      this.setState({ work: timer, styles, playPauseIcon })     
+      this.setState({ work: timer, playPauseIcon })     
     } else {
-      this.setState({ break: timer, styles, playPauseIcon });
+      this.setState({ break: timer, playPauseIcon });
     }
   }
 
@@ -198,12 +253,14 @@ class App extends Component {
       // UI changes -- before worktime toggle!
       if (this.state.workTime) { // change ui to reflect next break cycle
         styles.font.color = 'var(--lightgreen)';
+        styles.background.background = 'var(--darkgreen)';
       } else { // change ui to reflect next work cycle
         styles.font.color = 'var(--lightred)';
+        styles.background.background = 'var(--darkred)';
       }
 
       const playPauseIcon = 'fas fa-play';
-      styles.playPause.color = 'var(--lightgreen)';
+      // styles.playPause.color = 'var(--lightgreen)';
 
       // toggle whether it is breaktime and set new ui
       this.setState({ workTime: !this.state.workTime, styles, playPauseIcon });
@@ -213,15 +270,15 @@ class App extends Component {
             && !this.state.workTime) { // time for a long break!
         this.updateTimeShown(this.state.longBreak.timeRemaining);
         this.setState(prevState => { 
-          return { longBreakTime: true, pomodoros: prevState.pomodoros + 1 } 
+          return { longBreakTime: true, pomodoros: prevState.pomodoros + 1, progressPercent: 0 } 
         });
       } else if (this.state.workTime) { // time to work!
         this.updateTimeShown(this.state.work.timeRemaining);
-        this.setState({ longBreakTime: false });
+        this.setState({ longBreakTime: false, progressPercent: 0 });
       } else { // time for a short break!
         this.updateTimeShown(this.state.break.timeRemaining);
         this.setState(prevState => {
-          return { pomodoros: prevState.pomodoros + 1, longBreakTime: false }
+          return { pomodoros: prevState.pomodoros + 1, longBreakTime: false, progressPercent: 0 }
         });
       }
 
@@ -235,13 +292,16 @@ class App extends Component {
 
     this.updateTimeShown(timer.timeRemaining);
 
+    // TODO: this will cause problems when the timer duration is changed during an interval
+    const progressPercent = Number.parseFloat((timer.duration - timer.timeRemaining) / timer.duration * 100 ).toFixed(2);
+
     // set new state
     if (this.state.longBreakTime) {
-      this.setState({ longBreak: timer }) 
+      this.setState({ longBreak: timer, progressPercent }) 
     } else if (this.state.workTime) {
-      this.setState({ work: timer })     
+      this.setState({ work: timer, progressPercent })     
     } else {
-      this.setState({ break: timer });
+      this.setState({ break: timer, progressPercent });
     }
   }
 
@@ -265,15 +325,14 @@ class App extends Component {
   // --------------------------------------------------------------------------
 
   // this will take in seconds and return a string like 03:26
-  updateTimeShown(milliseconds) {
+  updateTimeShown(duration) { // in seconds (for now)
     const mins = 
-      (Math.floor((milliseconds/(1000*60*60)) % 60))
+      (Math.floor((duration/60) % 60))
       // https://stackoverflow.com/questions/8043026/how-to-format-numbers-by-prepending-0-to-single-digit-numbers
       .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping: false});
     const secs = 
-      (Math.floor((milliseconds/1000)%60))
+      (Math.floor(duration%60))
       .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping: false});
-    // const milliSecondsRemaining = (milliseconds%1000)/100
     this.setState({ showTime: {
       mins,
       secs,
@@ -299,27 +358,35 @@ class App extends Component {
       const playPauseIcon = 'fas fa-play';
       
       styles.font.color = 'var(--lightred)';
-      styles.playPause.color = 'var(--lightgreen)';
+      // styles.playPause.color = 'var(--lightgreen)';
+      styles.background.background = 'var(--darkred)'
 
       this.setState({ workTime: true, styles, playPauseIcon });
     }
 
     const workTimer = {...this.state.work};
     const breakTimer = {...this.state.break};
+    const longBreakTimer = {...this.state.longBreak};
+    
 
     // reset all values
-    workTimer.timeRemaining = workTimer.length * 1000;
+    workTimer.timeRemaining = workTimer.duration;
     workTimer.started = false;
     workTimer.timing = false;
-    // stateClone.break.length = inputTimeBreak.value * 60;
-    breakTimer.timeRemaining = breakTimer.length * 1000;
+
+    breakTimer.timeRemaining = breakTimer.duration;
     breakTimer.started = false;
     breakTimer.timing = false;
+    
+    longBreakTimer.timeRemaining = longBreakTimer.duration;
+    longBreakTimer.started = false;
+    longBreakTimer.timing = false;
 
     this.updateTimeShown(workTimer.timeRemaining);
 
-    this.setState({ work: workTimer, break: breakTimer });
+    this.setState({ work: workTimer, break: breakTimer, longBreak: longBreakTimer, longBreakTime: false, progressPercent: 0, });
   }
+
 
   // -----------------------------------------------------------------------------------------
   //                                                                              MAIN RENDER
@@ -337,6 +404,10 @@ class App extends Component {
             handleClick={this.handlePlayPause}
             faIcon={this.state.playPauseIcon}
             onReset={() => this.handleReset(true)}
+            progressPercent={this.state.progressPercent}
+            workTime={this.state.workTime}
+            fontColor={this.state.styles.font}
+            backgroundColor={this.state.styles.background}
           />
           <ShowTime
             font={this.state.styles.font}

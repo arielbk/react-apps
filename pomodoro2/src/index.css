@@ -7,6 +7,7 @@
   --darkred: #50191a;
   --lightred: #cf4547;
   --lightgreen: #8df37a;
+  --darkgreen: #214a19;
 }
 
 *, *::before, *::after {
@@ -27,7 +28,7 @@ body {
   box-shadow: 0 12px 50px rgba(0,0,0,.6);
   border-radius: 5px;
   margin: 30px auto 60px auto;
-  padding: 32px 80px 32px 80px;
+  padding: 32px 8.5% 32px 8.5%;
 }
 
 h1, h2 {
@@ -60,6 +61,8 @@ h1.main-header {
 
 .buttons-container {
   position: relative;
+  width: 150px;
+  height: 150px;
 }
 
 .close-button {
@@ -80,11 +83,12 @@ h1.main-header {
   align-items: center;
   justify-content: center;
 
-  background: var(--lightred);
+  /* background: var(--darkgreen); */
   width: 150px;
   height: 150px;
   border-radius: 100%;
   font-size: 64px;
+  transition: 1s;
 }
 
 .button-progress:hover {
@@ -98,10 +102,24 @@ h1.main-header {
 
   background: var(--darkgrey);
   color: var(--lightred);
-  width: 110px;
-  height: 110px;
+  width: 106px;
+  height: 106px;
   border-radius: 100%;
   font-size: 64px;
+}
+
+.progress-canvas {
+  height: 150px;
+  width: 150px;
+  border-radius: 100%;
+  /* border: 22px solid var(--lightred); */
+  position: absolute;
+  top: 0;
+  left:0;
+}
+
+.progress-canvas:hover {
+  cursor: pointer;
 }
 
 .fa-play {
@@ -141,9 +159,10 @@ h1.main-header {
 }
 
 .counter-pomodoros {
-  font-size: 144px;
+  font-size: 122px;
   color: #999;
   font-weight: 200;
+  letter-spacing: -.05em;
 }
 
 .counter-group {
@@ -164,7 +183,9 @@ h1.main-header {
 
 /* this is just a marker for when I come to it... and so it looks okay for now */
 .settings {
+  color: var(--lightred);
   text-align: center;
   text-decoration: underline;
   margin-top: 60px;
+  opacity: .4;
 }
