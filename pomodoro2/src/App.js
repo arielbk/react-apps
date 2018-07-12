@@ -4,10 +4,44 @@
 // responsiveness for smaller screens and mobile-specific features
 
 import React, { Component } from 'react';
+// import Sound from 'react-sound';
+// import Bell from './bell.wav';
+// import Jingle from './jingle.mp3';
+import gentleReminder from './gentleReminder.mp3';
 
   // -----------------------------------------------------------------------------------------
   //                                                                              COMPONENTS
   // -----------------------------------------------------------------------------------------
+
+class TimeSetterGroup extends Component {
+  render() {
+    return (
+      <div className='settings-timer-group'>
+        <TimeSetter timer={this.props.work}
+          onDurationChange={(timer, change) => this.props.onDurationChange(timer,change)}
+        />
+        <TimeSetter timer={this.props.break} 
+          onDurationChange={(timer, change) => this.props.onDurationChange(timer,change)}
+        />
+        <TimeSetter timer={this.props.longBreak} 
+          onDurationChange={(timer, change) => this.props.onDurationChange(timer,change)}
+        />
+      </div>
+    );
+  }
+}
+
+class TimeSetter extends Component {
+  render() {
+    return (
+      <div className='settings-timer-duration'>
+        <a className='decrement' onClick={() => this.props.onDurationChange(this.props.timer.name, -1)}>–</a>
+        <div className='settings-timer-show'>{Math.floor(this.props.timer.duration / 60)} min</div>
+        <a className='increment' onClick={() => this.props.onDurationChange(this.props.timer.name, +1 )}>+</a>
+      </div>
+    );
+  }
+}
 
 class ButtonProgress extends Component {
   constructor(props) {
@@ -38,7 +72,13 @@ class ButtonProgress extends Component {
     this.circle.clearRect(0,0,this.cw,this.ch); // clear canvas every time function is called
 
     this.circle.lineWidth = 22; // stroke size
-    this.props.workTime ? this.circle.strokeStyle = '#cf4547' : this.circle.strokeStyle = '#8df37a';
+    if (this.props.workTime) {
+      this.circle.strokeStyle = '#cf4547';
+    } else if (!this.props.WorkTime && this.props.longBreakTime) {
+      this.circle.strokeStyle = '#8df37a';
+    } else {
+      this.circle.strokeStyle = '#cace58';
+    }
 
     this.circle.beginPath();
     this.circle.arc(76,76,65,this.startPoint,endPoint+this.startPoint); // x, y, radius, start, end
@@ -94,7 +134,7 @@ function TimerTitles(props) {
     <div className="timer-titles">
       <div className="timer-title work-title" style={props.titleStyles.workTitle}><i className="fas fa-cog" /><span>Work</span></div>
       <div className="timer-title break-title" style={props.titleStyles.breakTitle}><i className="fas fa-cog" /><span>Break</span></div>
-      <div className="timer-title break-title" style={props.titleStyles.longBreakTitle}><i className="fas fa-cog" /><span>Long Break</span></div>
+      <div className="timer-title long-break-title" style={props.titleStyles.longBreakTitle}><i className="fas fa-cog" /><span>Long Break</span></div>
     </div>
   )
 }
@@ -124,22 +164,22 @@ class App extends Component {
       // WORK TIMER
       work: {
         name: 'work',
-        duration: 10, // 25*60 -- 25 minutes is default - set to 1500
-        timeRemaining: 10,
+        duration: 1500, // 25*60 -- 25 minutes is default - set to 1500
+        timeRemaining: 1500,
       },
 
       // BREAK TIMER
       break: {
         name: 'break',
-        duration: 5,
-        timeRemaining: 5,
+        duration: 300,
+        timeRemaining: 300,
       },
 
       // LONG BREAK TIMER
       longBreak: {
         name: 'longBreak',
-        duration: 15,
-        timeRemaining: 15,
+        duration: 900,
+        timeRemaining: 900,
       },
 
       styles: {
@@ -176,6 +216,7 @@ class App extends Component {
 
     this.handlePlayPause = this.handlePlayPause.bind(this);
     this.handleReset = this.handleReset.bind(this);
+    this.handleDurationChange = this.handleDurationChange.bind(this);
   }
 
   // -----------------------------------------------------------------------------------------
@@ -189,6 +230,34 @@ class App extends Component {
   // -----------------------------------------------------------------------------------------
   //                                                                              FUNCTIONS
   // -----------------------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------
+  //                                           increment / decrement timer
+  // --------------------------------------------------------------------------
+
+  handleDurationChange(timer, change) {
+    if (timer === 'work') {
+      console.log('work!');
+
+      const work = this.timerClone('work');
+      work.duration = work.duration + change * 60;
+      this.setState({ work });
+    } else if (timer === 'break') {
+      console.log('break!');
+
+      const breakTimer = this.timerClone('break');
+      breakTimer.duration = breakTimer.duration + change * 60;
+      this.setState({ break: breakTimer });
+    } else if (timer === 'longBreak') {
+      console.log('long break!');
+
+      const longBreak = this.timerClone('longBreak');
+      longBreak.duration = longBreak.duration + change * 60;
+      this.setState({ longBreak });
+    } else {
+      return;
+    }
+  }
 
   // --------------------------------------------------------------------------
   //                                           play/pause timer
@@ -266,6 +335,8 @@ class App extends Component {
     if (timer.timeRemaining < 1) {
       this.handleReset();
 
+      this.refs.bell.play();
+
       // UI changes -- before worktime toggle!
       // must be a better way than all this repetition...
       if (this.state.workTime &&
@@ -282,13 +353,13 @@ class App extends Component {
       } else if (this.state.workTime) { // change ui to reflect next break cycle
         styles.titles.workTitle.color = '';
         styles.titles.workTitle.borderBottom = '';
-        styles.titles.breakTitle.color = 'var(--lightgreen)';
-        styles.titles.breakTitle.borderBottom = '6px solid var(--darkgreen)';
+        styles.titles.breakTitle.color = 'var(--lightyellow)';
+        styles.titles.breakTitle.borderBottom = '6px solid var(--darkyellow)';
         styles.titles.longBreakTitle.color = '';
         styles.titles.longBreakTitle.borderBottom = '';
         
-        styles.font.color = 'var(--lightgreen)';
-        styles.background.background = 'var(--darkgreen)';
+        styles.font.color = 'var(--lightyellow)';
+        styles.background.background = 'var(--darkyellow)';
       } else { // change ui to reflect next work cycle
         styles.titles.workTitle.color = 'var(--lightred)';
         styles.titles.workTitle.borderBottom = '6px solid var(--darkred)';
@@ -455,6 +526,7 @@ class App extends Component {
             onReset={() => this.handleReset(true)}
             progressPercent={this.state.progressPercent}
             workTime={this.state.workTime}
+            longBreakTime={this.state.longBreakTime}
             fontColor={this.state.styles.font}
             backgroundColor={this.state.styles.background}
           />
@@ -470,7 +542,17 @@ class App extends Component {
         <TimerTitles
           titleStyles={this.state.styles.titles}
         />
-        {/* <audio src="bell.mp3" controls /> */}
+        {/* <Sound 
+          url={Bell}
+          playStatus={Sound.status.PLAYING}
+        /> */}
+        <TimeSetterGroup 
+          work={this.state.work}
+          break={this.state.break}
+          longBreak={this.state.longBreak}
+          onDurationChange={(timer, change) => this.handleDurationChange(timer, change)}
+        />
+        <audio src={gentleReminder} ref="bell" />
       </div>
     );
   }

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto:400|Rubik:700');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400|Rubik:400');
 
 :root {
   --lightgrey: #cacaca;
@@ -8,6 +8,8 @@
   --lightred: #cf4547;
   --lightgreen: #8df37a;
   --darkgreen: #214a19;
+  --lightyellow: #cace58;
+  --darkyellow: #64644A;
 }
 
 *, *::before, *::after {
@@ -18,9 +20,10 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  font-size: 18px;
+  font-size: 20px;
   background: #111;
   color: var(--medgrey);
+  /* display: flex; */
 }
 
 .app {
@@ -29,7 +32,7 @@ body {
   box-shadow: 0 12px 50px rgba(0,0,0,.6);
   border-radius: 5px;
   margin: 30px auto 60px auto;
-  padding: 32px 8.5% 32px 8.5%;
+  padding: 40px 60px 40px 60px;
 }
 
 h1, h2 {
@@ -55,7 +58,7 @@ h1.main-header {
 
 .main-content {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   margin: 60px 0 40px 0;
 }
@@ -204,7 +207,7 @@ h1.main-header {
   width: 220px;
   height: 45px;
   text-align: center;
-  padding: .5em;
+  padding: .4em;
   border-bottom: 6px solid var(--medgrey);
   margin-bottom: 20px;
 }
@@ -216,6 +219,12 @@ h1.main-header {
 }
 
 .break-title:hover {
+  cursor: pointer;
+  color: var(--lightgrey);
+  border-bottom: 6px solid var(--lightyellow) !important;
+}
+
+.long-break-title:hover {
   cursor: pointer;
   color: var(--lightgrey);
   border-bottom: 6px solid var(--lightgreen) !important;
@@ -239,3 +248,36 @@ h1.main-header {
 
 }
 
+.settings-timer-group {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-timer-duration {
+  /* padding: 0 1em; */
+  margin: 0;
+  width: 220px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.decrement, .increment {
+  border: none;
+  background: transparent;
+  font-weight: bold;
+  color: var(--medgrey);
+  font-size: 2rem;
+}
+
+.decrement:hover, .increment:hover {
+  cursor: pointer;
+}
+.decrement:hover {
+  color: var(--lightred);
+}
+.increment:hover {
+  color: var(--lightgreen);
+}

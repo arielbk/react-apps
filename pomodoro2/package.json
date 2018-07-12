@@ -2,10 +2,12 @@
   "name": "pomodoro2",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://arielbk.com/pomodoro2",
   "dependencies": {
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "react-sound": "^1.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
