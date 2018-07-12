@@ -9,7 +9,7 @@
   --lightgreen: #8df37a;
   --darkgreen: #214a19;
   --lightyellow: #cace58;
-  --darkyellow: #64644A;
+  --darkyellow: #56571D;
 }
 
 *, *::before, *::after {
@@ -195,89 +195,132 @@ h1.main-header {
   opacity: .4;
 }
 
-.timer-titles {
+.timer-settings {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  /* flex-wrap: nowrap; */
 }
 
+
+
 .timer-title {
+  /* flex-basis: 220px; */
+
   text-transform: lowercase;
+  display: inline-block;
   transition: color .5s;
   width: 220px;
   height: 45px;
   text-align: center;
   padding: .4em;
   border-bottom: 6px solid var(--medgrey);
-  margin-bottom: 20px;
+  /* margin-bottom: 25px; */
 }
 
+.settings-work:hover .work-title,
 .work-title:hover {
   color: var(--lightgrey);
   border-bottom: 6px solid var(--lightred) !important;
   cursor: pointer;
 }
 
-.break-title:hover {
+.settings-break:hover .break-title,
+.break-title:hover
+{
   cursor: pointer;
   color: var(--lightgrey);
   border-bottom: 6px solid var(--lightyellow) !important;
 }
 
+.settings-long-break:hover .long-break-title,
 .long-break-title:hover {
   cursor: pointer;
   color: var(--lightgrey);
   border-bottom: 6px solid var(--lightgreen) !important;
 }
 
-.timer-title {
-  position: relative;
-}
 
-.timer-title i {
-  position:absolute;
-  left: 1em;
-  opacity: 0;
-  margin-right: 10px;
-  transition: 0.1s;
-  color: var(--medgrey)
-}
 
-.timer-title:hover i {
-  opacity: 1;
-
-}
-
-.settings-timer-group {
-  width: 100%;
+.settings-timer-work,
+.settings-timer-break,
+.settings-timer-long-break,
+.settings-goal,
+.settings-lb-set {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.settings-timer-duration {
-  /* padding: 0 1em; */
-  margin: 0;
-  width: 220px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  transition: color 0.2s;
+  margin: 1em 0;
 }
 
 .decrement, .increment {
   border: none;
   background: transparent;
   font-weight: bold;
-  color: var(--medgrey);
   font-size: 2rem;
+  opacity: 0;
+
+  /* noselect: https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting */
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
+
 
 .decrement:hover, .increment:hover {
   cursor: pointer;
 }
-.decrement:hover {
-  color: var(--lightred);
+
+.settings-timer-work:hover {
+  color: var(--lightgrey);
 }
-.increment:hover {
+.settings-timer-work:hover a.decrement,
+.settings-timer-work:hover a.increment {
+  color: var(--lightred);
+  opacity: 1;
+}
+
+.settings-timer-break:hover {
+  color: var(--lightgrey);
+}
+.settings-timer-break:hover a.decrement,
+.settings-timer-break:hover a.increment {
+  color: var(--lightyellow);
+  opacity: 1;
+}
+
+.settings-timer-long-break:hover {
+  color: var(--lightgrey);
+}
+.settings-timer-long-break:hover a.decrement,
+.settings-timer-long-break:hover a.increment {
   color: var(--lightgreen);
+  opacity: 1;
+}
+
+.settings-goal {
+  text-transform: lowercase;
+}
+.settings-goal:hover {
+  color: var(--lightgrey);
+}
+.settings-goal:hover a.decrement,
+.settings-goal:hover a.increment {
+  color: var(--lightred);
+  opacity: 1;
+}
+
+.settings-lb-set {
+  text-transform: lowercase;
+}
+.settings-lb-set:hover {
+  color: var(--lightgrey);
+}
+.settings-lb-set:hover a.decrement,
+.settings-lb-set:hover a.increment {
+  color: var(--lightgreen);
+  opacity: 1;
 }

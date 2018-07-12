@@ -13,36 +13,6 @@ import gentleReminder from './gentleReminder.mp3';
   //                                                                              COMPONENTS
   // -----------------------------------------------------------------------------------------
 
-class TimeSetterGroup extends Component {
-  render() {
-    return (
-      <div className='settings-timer-group'>
-        <TimeSetter timer={this.props.work}
-          onDurationChange={(timer, change) => this.props.onDurationChange(timer,change)}
-        />
-        <TimeSetter timer={this.props.break} 
-          onDurationChange={(timer, change) => this.props.onDurationChange(timer,change)}
-        />
-        <TimeSetter timer={this.props.longBreak} 
-          onDurationChange={(timer, change) => this.props.onDurationChange(timer,change)}
-        />
-      </div>
-    );
-  }
-}
-
-class TimeSetter extends Component {
-  render() {
-    return (
-      <div className='settings-timer-duration'>
-        <a className='decrement' onClick={() => this.props.onDurationChange(this.props.timer.name, -1)}>–</a>
-        <div className='settings-timer-show'>{Math.floor(this.props.timer.duration / 60)} min</div>
-        <a className='increment' onClick={() => this.props.onDurationChange(this.props.timer.name, +1 )}>+</a>
-      </div>
-    );
-  }
-}
-
 class ButtonProgress extends Component {
   constructor(props) {
     super(props);
@@ -129,13 +99,74 @@ function Counters(props) {
   )
 }
 
-function TimerTitles(props) {
+function TimerSettings(props) {
   return (
-    <div className="timer-titles">
-      <div className="timer-title work-title" style={props.titleStyles.workTitle}><i className="fas fa-cog" /><span>Work</span></div>
-      <div className="timer-title break-title" style={props.titleStyles.breakTitle}><i className="fas fa-cog" /><span>Break</span></div>
-      <div className="timer-title long-break-title" style={props.titleStyles.longBreakTitle}><i className="fas fa-cog" /><span>Long Break</span></div>
+    <div className="timer-settings">
+      <div className="settings-group settings-work">
+        <div className="timer-title work-title" style={props.titleStyles.workTitle}>Work</div>
+        <TimeSetter className='settings-timer-work' timer={props.work}
+          onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
+        />
+        <GoalSetter goal={props.goal} onGoalChange={change => props.onGoalChange(change)} />
+      </div>
+      
+      <div className="settings-group settings-break">
+        <div className="timer-title break-title" style={props.titleStyles.breakTitle}>Break</div>
+        <TimeSetter classname='settings-timer-break' timer={props.break} 
+          onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
+        />
+      </div>
+
+      <div className="settings-group settings-long-break">
+        <div className="timer-title long-break-title" style={props.titleStyles.longBreakTitle}>Long Break</div>
+        <TimeSetter classname='settings-timer-long-break' timer={props.longBreak} 
+          onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
+        />
+        <LongBreakSetter
+          pomodoroSet={props.pomodoroSet}
+          onSetChange={change => props.handleSetChange(change)}
+        />
+      </div>
+
+        
+        
     </div>
+  )
+}
+
+class TimeSetter extends Component {
+  render() {
+    let timerName;
+    this.props.timer.name === 'longBreak'
+      ? timerName = 'long-break'
+      : timerName = this.props.timer.name;
+    return (
+      <div className={`settings-timer-${timerName}`} >
+        <a className='decrement' onClick={() => this.props.onDurationChange(this.props.timer.name, -1)}>–</a>
+        <div className='settings-timer-show'>{Math.floor(this.props.timer.duration / 60)} min</div>
+        <a className='increment' onClick={() => this.props.onDurationChange(this.props.timer.name, +1 )}>+</a>
+      </div>
+    );
+  }
+}
+
+function GoalSetter(props) {
+  return (
+    <div className={`settings-goal`} >
+        <a className='decrement' onClick={() => props.onGoalChange(-1)}>–</a>
+        <div className='settings-goal-show'>Goal : {props.goal}</div>
+        <a className='increment' onClick={() => props.onGoalChange(+1)}>+</a>
+      </div>
+  )
+}
+
+function LongBreakSetter(props) {
+  return (
+    <div className={`settings-lb-set`} >
+        <a className='decrement' onClick={() => props.onSetChange(-1)}>–</a>
+        <div className='settings-goal-show'>Every {props.pomodoroSet}</div>
+        <a className='increment' onClick={() => props.onSetChange(+1)}>+</a>
+      </div>
   )
 }
 
@@ -158,7 +189,7 @@ class App extends Component {
       progressPercent: 0,
 
       pomodoros: 0,
-      goal: 9,
+      goal: 8,
       pomodoroSet: 2, // number of pomodoros before a long break
 
       // WORK TIMER
@@ -192,7 +223,7 @@ class App extends Component {
         titles: {
           workTitle: {
             color: 'var(--lightred)',
-            borderBottom: '6px solid var(--darkred)',
+            borderBottom: '6px solid var(--lightred)',
           },
           breakTitle: {
             color: '',
@@ -217,6 +248,8 @@ class App extends Component {
     this.handlePlayPause = this.handlePlayPause.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleDurationChange = this.handleDurationChange.bind(this);
+    this.handleGoalChange = this.handleGoalChange.bind(this);
+    this.handleSetChange = this.handleSetChange.bind(this);
   }
 
   // -----------------------------------------------------------------------------------------
@@ -232,31 +265,56 @@ class App extends Component {
   // -----------------------------------------------------------------------------------------
 
   // --------------------------------------------------------------------------
+  //                                           change sets to long break
+  // --------------------------------------------------------------------------
+
+  handleSetChange(change) {
+    const pomodoroSet = this.state.pomodoroSet + change;
+    if (pomodoroSet > 0) this.setState({ pomodoroSet })
+  }
+
+  // --------------------------------------------------------------------------
+  //                                           change pomodoro goal
+  // --------------------------------------------------------------------------
+
+  handleGoalChange(change) {
+    const goal = this.state.goal + change;
+    if (goal > 0) this.setState({goal});
+  }
+
+  // --------------------------------------------------------------------------
   //                                           increment / decrement timer
   // --------------------------------------------------------------------------
 
   handleDurationChange(timer, change) {
     if (timer === 'work') {
-      console.log('work!');
-
       const work = this.timerClone('work');
       work.duration = work.duration + change * 60;
-      this.setState({ work });
+      if (work.duration > 0) {
+        if (this.state.workTime && work.timing) work.timeRemaining = work.timeRemaining + change * 60;
+        this.setState({ work });
+        if (this.state.workTime && !work.timing) this.updateTimeShown(work.duration);
+      }
     } else if (timer === 'break') {
-      console.log('break!');
-
       const breakTimer = this.timerClone('break');
       breakTimer.duration = breakTimer.duration + change * 60;
-      this.setState({ break: breakTimer });
+      if (breakTimer.duration > 0) {
+        if (!this.state.workTime && !this.state.longBreakTime && breakTimer.timing) breakTimer.timeRemaining = breakTimer.timeRemaining + change * 60;
+        this.setState({ break: breakTimer });
+        if (!this.state.workTime && !this.state.longBreakTime && !breakTimer.timing) this.updateTimeShown(breakTimer.duration);
+      }
     } else if (timer === 'longBreak') {
-      console.log('long break!');
-
       const longBreak = this.timerClone('longBreak');
       longBreak.duration = longBreak.duration + change * 60;
-      this.setState({ longBreak });
+      if (longBreak.duration > 0) {
+        if (this.state.longBreakTime && longBreak.timing) longBreak.timeRemaining = longBreak.timeRemaining + change * 60;
+        this.setState({ longBreak });
+        if (this.state.longBreakTime && !longBreak.timing) this.updateTimeShown(longBreak.duration);
+      }
     } else {
       return;
     }
+
   }
 
   // --------------------------------------------------------------------------
@@ -346,7 +404,7 @@ class App extends Component {
         styles.titles.breakTitle.color = '';
         styles.titles.breakTitle.borderBottom = '';
         styles.titles.longBreakTitle.color = 'var(--lightgreen)';
-        styles.titles.longBreakTitle.borderBottom = '6px solid var(--darkgreen)';
+        styles.titles.longBreakTitle.borderBottom = '6px solid var(--lightgreen)';
         
         styles.font.color = 'var(--lightgreen)';
         styles.background.background = 'var(--darkgreen)';
@@ -354,7 +412,7 @@ class App extends Component {
         styles.titles.workTitle.color = '';
         styles.titles.workTitle.borderBottom = '';
         styles.titles.breakTitle.color = 'var(--lightyellow)';
-        styles.titles.breakTitle.borderBottom = '6px solid var(--darkyellow)';
+        styles.titles.breakTitle.borderBottom = '6px solid var(--lightyellow)';
         styles.titles.longBreakTitle.color = '';
         styles.titles.longBreakTitle.borderBottom = '';
         
@@ -362,7 +420,7 @@ class App extends Component {
         styles.background.background = 'var(--darkyellow)';
       } else { // change ui to reflect next work cycle
         styles.titles.workTitle.color = 'var(--lightred)';
-        styles.titles.workTitle.borderBottom = '6px solid var(--darkred)';
+        styles.titles.workTitle.borderBottom = '6px solid var(--lightred)';
         styles.titles.breakTitle.color = '';
         styles.titles.breakTitle.borderBottom = '';
         styles.titles.longBreakTitle.color = '';
@@ -468,7 +526,7 @@ class App extends Component {
       const styles = JSON.parse(JSON.stringify(this.state.styles));
 
       styles.titles.workTitle.color = 'var(--lightred)';
-      styles.titles.workTitle.borderBottom = '6px solid var(--darkred)';
+      styles.titles.workTitle.borderBottom = '6px solid var(--lightred)';
       styles.titles.breakTitle.color = '';
       styles.titles.breakTitle.borderBottom = '';
       styles.titles.longBreakTitle.color = '';
@@ -539,19 +597,21 @@ class App extends Component {
             goal={this.state.goal}
           />
         </div>
-        <TimerTitles
+        <TimerSettings
           titleStyles={this.state.styles.titles}
+          work={this.state.work}
+          break={this.state.break}
+          longBreak={this.state.longBreak}
+          onDurationChange={(timer, change) => this.handleDurationChange(timer, change)}
+          onGoalChange={change => this.handleGoalChange(change)}
+          goal={this.state.goal}
+          pomodoroSet={this.state.pomodoroSet}
+          handleSetChange={this.handleSetChange}
         />
         {/* <Sound 
           url={Bell}
           playStatus={Sound.status.PLAYING}
         /> */}
-        <TimeSetterGroup 
-          work={this.state.work}
-          break={this.state.break}
-          longBreak={this.state.longBreak}
-          onDurationChange={(timer, change) => this.handleDurationChange(timer, change)}
-        />
         <audio src={gentleReminder} ref="bell" />
       </div>
     );
