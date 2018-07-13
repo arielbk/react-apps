@@ -6,7 +6,7 @@
 import React, { Component } from 'react';
 // import Sound from 'react-sound';
 import Bell from './bell.mp3';
-// import Jingle from './jingle.mp3';
+import Jingle from './jingle.mp3';
 import GentleReminder from './gentleReminder.mp3';
 
   // -----------------------------------------------------------------------------------------
@@ -107,6 +107,7 @@ function TimerSettings(props) {
         <TimeSetter className='settings-timer-work' timer={props.work}
           onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
         />
+        <SoundSelector workSound={props.workSound} timer={props.work} onSoundSelect={(timer, sound) => props.onSoundSelect('work', sound)} sounds={props.sounds}/>
         <GoalSetter goal={props.goal} onGoalChange={change => props.onGoalChange(change)} />
       </div>
       
@@ -115,6 +116,7 @@ function TimerSettings(props) {
         <TimeSetter classname='settings-timer-break' timer={props.break} 
           onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
         />
+        <SoundSelector breakSound={props.breakSound} timer={props.break} onSoundSelect={(timer, sound) => props.onSoundSelect('break', sound)} sounds={props.sounds}/>
       </div>
 
       <div className="settings-group settings-long-break">
@@ -122,6 +124,7 @@ function TimerSettings(props) {
         <TimeSetter classname='settings-timer-long-break' timer={props.longBreak} 
           onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
         />
+        <SoundSelector longBreakSound={props.longBreakSound} timer={props.longBreak} onSoundSelect={(timer, sound) => props.onSoundSelect('longBreak', sound)} sounds={props.sounds}/>
         <LongBreakSetter
           pomodoroSet={props.pomodoroSet}
           onSetChange={change => props.handleSetChange(change)}
@@ -151,9 +154,35 @@ class TimeSetter extends Component {
   }
 }
 
+function SoundSelector(props) {
+  return (
+    <div className='settings-sound'>
+      <ul>
+      {props.sounds.map(sound => {
+        let className = 'sound-hidden';
+        if ((props.timer.name === 'work' && props.workSound === sound) ||
+            (props.timer.name === 'break' && props.breakSound === sound) ||
+            (props.timer.name === 'longBreak' && props.longBreakSound === sound)) {
+          className = 'sound-active';
+        }
+        return (
+          <li 
+          onClick={() => props.onSoundSelect(props.timer.name, sound)} 
+          key={`${props.timer.name}-${sound}`}
+          className={className}
+          >
+            {sound}
+          </li>
+        )
+      })}
+      </ul>
+    </div>
+  )
+}
+
 function GoalSetter(props) {
   return (
-    <div className={`settings-goal`} >
+    <div className='settings-goal'>
         <a className='decrement' onMouseDown={() => props.onGoalChange(-1)}>–</a>
         <div className='settings-goal-show'>Goal : {props.goal}</div>
         <a className='increment' onMouseDown={() => props.onGoalChange(+1)}>+</a>
@@ -193,13 +222,20 @@ class App extends Component {
 
       pomodoros: 0,
       goal: 8,
-      pomodoroSet: 2, // number of pomodoros before a long break
+      pomodoroSet: 4, // number of pomodoros before a long break
+
+      sounds: [
+        'Bell',
+        'Jingle',
+        'GentleReminder'
+      ],
 
       // WORK TIMER
       work: {
         name: 'work',
         duration: 1500, // 25*60 -- 25 minutes is default - set to 1500
         timeRemaining: 1500,
+        sound: 'Bell',
       },
 
       // BREAK TIMER
@@ -207,6 +243,7 @@ class App extends Component {
         name: 'break',
         duration: 300,
         timeRemaining: 300,
+        sound: 'Jingle',
       },
 
       // LONG BREAK TIMER
@@ -214,6 +251,7 @@ class App extends Component {
         name: 'longBreak',
         duration: 900,
         timeRemaining: 900,
+        sound: 'GentleReminder'
       },
 
       styles: {
@@ -253,6 +291,7 @@ class App extends Component {
     this.handleDurationChange = this.handleDurationChange.bind(this);
     this.handleGoalChange = this.handleGoalChange.bind(this);
     this.handleSetChange = this.handleSetChange.bind(this);
+    this.handleSoundSelect = this.handleSoundSelect.bind(this);
 
     this.setMouseDown = this.setMouseDown.bind(this);
     this.setMouseUp = this.setMouseUp.bind(this);
@@ -295,6 +334,24 @@ class App extends Component {
   // -----------------------------------------------------------------------------------------
 
   // --------------------------------------------------------------------------
+  //                                           handle sound select
+  // --------------------------------------------------------------------------
+
+  handleSoundSelect(timer,sound) {
+    // clone timer
+    timer = this.timerClone(timer);
+    timer.sound = sound;
+    
+    if (timer.name === 'work') {
+      this.setState({ work: timer });
+    } else if (timer.name === 'break') {
+      this.setState({ break: timer });
+    } else if (timer.name === 'longBreak') {
+      this.setState ({ longBreak: timer });
+    }
+  }
+
+  // --------------------------------------------------------------------------
   //                                           change sets to long break
   // --------------------------------------------------------------------------
 
@@ -332,7 +389,7 @@ class App extends Component {
     // clone timer and return immediately if it is 0 or less, or more than 99 minutes
     timer = this.timerClone(timer);
     timer.duration = timer.duration + change * 60;
-    if (timer.duration < 1 || timer.duration > 5940) return;
+    if (timer.duration < 0 || timer.duration > 5940) return;
 
     // to determine whether changes are being made to the active timer
     const workActive = timer.name === 'work' && this.state.workTime;
@@ -445,7 +502,13 @@ class App extends Component {
     if (timer.timeRemaining < 1) {
       this.handleReset();
 
-      this.refs.audioBell.play();
+      if (timer.name === 'work') {
+        this.refs[this.state.work.sound].play();
+      } else if (timer.name === 'break') {
+        this.refs[this.state.break.sound].play();
+      } else if (timer.name === 'longBreak') {
+        this.refs[this.state.longBreak.sound].play();
+      }
 
       // UI changes -- before worktime toggle!
       // must be a better way than all this repetition...
@@ -659,13 +722,15 @@ class App extends Component {
           goal={this.state.goal}
           pomodoroSet={this.state.pomodoroSet}
           handleSetChange={this.handleSetChange}
+          sounds={this.state.sounds}
+          workSound={this.state.work.sound}
+          breakSound={this.state.break.sound}
+          longBreakSound={this.state.longBreak.sound}
+          onSoundSelect={(timer, sound) => this.handleSoundSelect(timer, sound)}
         />
-        {/* <Sound 
-          url={Bell}
-          playStatus={Sound.status.PLAYING}
-        /> */}
-        <audio src={GentleReminder} ref="audioGentleReminder" />
-        <audio src={Bell} ref="audioBell" />
+        <audio src={GentleReminder} ref="GentleReminder" />
+        <audio src={Jingle} ref="Jingle" />
+        <audio src={Bell} ref="Bell" />
       </div>
     );
   }

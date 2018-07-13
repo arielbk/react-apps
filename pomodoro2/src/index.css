@@ -328,3 +328,43 @@ h1.main-header {
   color: var(--lightgreen);
   opacity: 1;
 }
+
+.settings-sound {
+  position: relative;
+  display: block;
+  width: 220px;
+  height: 2em;
+  text-align: center;
+}
+
+.settings-sound ul {
+  position: absolute;
+  left: 50%;
+  top: -.5em;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.6);
+  padding: .5em;
+  margin: 0;
+}
+
+.settings-sound ul li {
+  list-style: none;
+  text-align: center;
+  width: 100%;
+}
+
+.settings-sound ul li:hover {
+  cursor: pointer;
+}
+
+.sound-active {
+  color: var(--lightgrey);
+}
+
+.sound-hidden {
+  display:none;
+}
+
+.settings-sound:hover .sound-hidden {
+  display: block;
+}
