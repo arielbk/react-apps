@@ -5,9 +5,9 @@
 
 import React, { Component } from 'react';
 // import Sound from 'react-sound';
-// import Bell from './bell.wav';
+import Bell from './bell.mp3';
 // import Jingle from './jingle.mp3';
-import gentleReminder from './gentleReminder.mp3';
+import GentleReminder from './gentleReminder.mp3';
 
   // -----------------------------------------------------------------------------------------
   //                                                                              COMPONENTS
@@ -47,7 +47,7 @@ class ButtonProgress extends Component {
     } else if (!this.props.WorkTime && this.props.longBreakTime) {
       this.circle.strokeStyle = '#8df37a';
     } else {
-      this.circle.strokeStyle = '#cace58';
+      this.circle.strokeStyle = '#d1802a';
     }
 
     this.circle.beginPath();
@@ -125,6 +125,7 @@ function TimerSettings(props) {
         <LongBreakSetter
           pomodoroSet={props.pomodoroSet}
           onSetChange={change => props.handleSetChange(change)}
+          stopSetChange={props.stopSetChange}
         />
       </div>
 
@@ -142,9 +143,9 @@ class TimeSetter extends Component {
       : timerName = this.props.timer.name;
     return (
       <div className={`settings-timer-${timerName}`} >
-        <a className='decrement' onClick={() => this.props.onDurationChange(this.props.timer.name, -1)}>–</a>
+        <a className='decrement' onMouseDown={() => this.props.onDurationChange(this.props.timer.name, -1)}>–</a>
         <div className='settings-timer-show'>{Math.floor(this.props.timer.duration / 60)} min</div>
-        <a className='increment' onClick={() => this.props.onDurationChange(this.props.timer.name, +1 )}>+</a>
+        <a className='increment' onMouseDown={() => this.props.onDurationChange(this.props.timer.name, +1 )}>+</a>
       </div>
     );
   }
@@ -153,9 +154,9 @@ class TimeSetter extends Component {
 function GoalSetter(props) {
   return (
     <div className={`settings-goal`} >
-        <a className='decrement' onClick={() => props.onGoalChange(-1)}>–</a>
+        <a className='decrement' onMouseDown={() => props.onGoalChange(-1)}>–</a>
         <div className='settings-goal-show'>Goal : {props.goal}</div>
-        <a className='increment' onClick={() => props.onGoalChange(+1)}>+</a>
+        <a className='increment' onMouseDown={() => props.onGoalChange(+1)}>+</a>
       </div>
   )
 }
@@ -163,9 +164,9 @@ function GoalSetter(props) {
 function LongBreakSetter(props) {
   return (
     <div className={`settings-lb-set`} >
-        <a className='decrement' onClick={() => props.onSetChange(-1)}>–</a>
+        <a className='decrement' onMouseDown={() => props.onSetChange(-1)} onMouseUp={props.stopSetChange}>–</a>
         <div className='settings-goal-show'>Every {props.pomodoroSet}</div>
-        <a className='increment' onClick={() => props.onSetChange(+1)}>+</a>
+        <a className='increment' onMouseDown={() => props.onSetChange(+1)} onMouseUp={props.stopSetChange}>+</a>
       </div>
   )
 }
@@ -185,6 +186,8 @@ class App extends Component {
       intervalID: 0,
       timing: false,
       timerStarted: false,
+
+      mouseDown: false,
 
       progressPercent: 0,
 
@@ -250,15 +253,42 @@ class App extends Component {
     this.handleDurationChange = this.handleDurationChange.bind(this);
     this.handleGoalChange = this.handleGoalChange.bind(this);
     this.handleSetChange = this.handleSetChange.bind(this);
+
+    this.setMouseDown = this.setMouseDown.bind(this);
+    this.setMouseUp = this.setMouseUp.bind(this);
+
+    this.handleKeyPress = this.handleKeyPress.bind(this);
   }
 
   // -----------------------------------------------------------------------------------------
   //                                                                      LIFE CYCLE EVENTS
   // -----------------------------------------------------------------------------------------
+  setMouseDown() {
+    this.setState({mouseDown:true});
+  }
+  setMouseUp() {
+    this.setState({mouseDown:false});
+  }
 
-  // componentDidMount() {
-  //   this.progressCircle();
-  // }
+  handleKeyPress(e) {
+    if (e.key === ' ') {
+      this.handlePlayPause();
+    } else if (e.key === 'Escape') {
+      this.handleReset(true);
+    }
+  }
+
+  componentDidMount() {
+    document.addEventListener('mousedown', this.setMouseDown);
+    document.addEventListener('mouseup', this.setMouseUp);
+    document.addEventListener('keyup', this.handleKeyPress);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.setMouseDown);
+    document.removeEventListener('mouseup', this.setMouseUp);
+    document.addEventListener('keyup', this.handleKeyPress);
+  }
 
   // -----------------------------------------------------------------------------------------
   //                                                                              FUNCTIONS
@@ -270,7 +300,13 @@ class App extends Component {
 
   handleSetChange(change) {
     const pomodoroSet = this.state.pomodoroSet + change;
-    if (pomodoroSet > 0) this.setState({ pomodoroSet })
+    if (pomodoroSet < 1) return;
+    this.setState({ pomodoroSet });
+
+    // recurse the function if mouse click is held
+    setTimeout(() => {
+      if (this.state.mouseDown) this.handleSetChange(change);
+    }, 100);
   }
 
   // --------------------------------------------------------------------------
@@ -279,7 +315,13 @@ class App extends Component {
 
   handleGoalChange(change) {
     const goal = this.state.goal + change;
-    if (goal > 0) this.setState({goal});
+    if (goal < 1) return;
+    this.setState({goal});
+
+    // recurse the function if mouse click is held
+    setTimeout(() => {
+      if (this.state.mouseDown) this.handleGoalChange(change);
+    }, 100);
   }
 
   // --------------------------------------------------------------------------
@@ -287,33 +329,43 @@ class App extends Component {
   // --------------------------------------------------------------------------
 
   handleDurationChange(timer, change) {
-    if (timer === 'work') {
-      const work = this.timerClone('work');
-      work.duration = work.duration + change * 60;
-      if (work.duration > 0) {
-        if (this.state.workTime && work.timing) work.timeRemaining = work.timeRemaining + change * 60;
-        this.setState({ work });
-        if (this.state.workTime && !work.timing) this.updateTimeShown(work.duration);
+    // clone timer and return immediately if it is 0 or less, or more than 99 minutes
+    timer = this.timerClone(timer);
+    timer.duration = timer.duration + change * 60;
+    if (timer.duration < 1 || timer.duration > 5940) return;
+
+    // to determine whether changes are being made to the active timer
+    const workActive = timer.name === 'work' && this.state.workTime;
+    const breakActive = timer.name === 'break' && !this.state.workTime && !this.state.longBreakTime;
+    const longBreakActive = timer.name === 'longBreak' && this.state.longBreakTime;
+
+    // time will need to be added to the timer as its adjusted for active running timer
+    if (timer.timing) {
+      if (workActive) {
+        timer.timeRemaining += change * 60;
       }
-    } else if (timer === 'break') {
-      const breakTimer = this.timerClone('break');
-      breakTimer.duration = breakTimer.duration + change * 60;
-      if (breakTimer.duration > 0) {
-        if (!this.state.workTime && !this.state.longBreakTime && breakTimer.timing) breakTimer.timeRemaining = breakTimer.timeRemaining + change * 60;
-        this.setState({ break: breakTimer });
-        if (!this.state.workTime && !this.state.longBreakTime && !breakTimer.timing) this.updateTimeShown(breakTimer.duration);
+      if (breakActive) {
+        timer.timeRemaining += change * 60;
       }
-    } else if (timer === 'longBreak') {
-      const longBreak = this.timerClone('longBreak');
-      longBreak.duration = longBreak.duration + change * 60;
-      if (longBreak.duration > 0) {
-        if (this.state.longBreakTime && longBreak.timing) longBreak.timeRemaining = longBreak.timeRemaining + change * 60;
-        this.setState({ longBreak });
-        if (this.state.longBreakTime && !longBreak.timing) this.updateTimeShown(longBreak.duration);
+      if (longBreakActive) {
+        timer.timeRemaining += change * 60;
       }
-    } else {
-      return;
+    } else { // i.e. if the timer is not running and the change is to active time, the shown time should also update
+      if (workActive || breakActive || longBreakActive) {
+        this.updateTimeShown(timer.duration);
+      }
     }
+
+    // set state
+    if (timer.name === 'work') this.setState({ work: timer })
+    if (timer.name === 'break') this.setState({ break: timer })
+    if (timer.name === 'longBreak') this.setState({ longBreak: timer })
+
+    // recurse the function if mouse click is held
+    setTimeout(() => {
+      //surely I do not want to clone it every time though...
+      if (this.state.mouseDown) this.handleDurationChange(timer.name, change);
+    }, 100);
 
   }
 
@@ -393,7 +445,7 @@ class App extends Component {
     if (timer.timeRemaining < 1) {
       this.handleReset();
 
-      this.refs.bell.play();
+      this.refs.audioBell.play();
 
       // UI changes -- before worktime toggle!
       // must be a better way than all this repetition...
@@ -411,13 +463,13 @@ class App extends Component {
       } else if (this.state.workTime) { // change ui to reflect next break cycle
         styles.titles.workTitle.color = '';
         styles.titles.workTitle.borderBottom = '';
-        styles.titles.breakTitle.color = 'var(--lightyellow)';
-        styles.titles.breakTitle.borderBottom = '6px solid var(--lightyellow)';
+        styles.titles.breakTitle.color = 'var(--lightorange)';
+        styles.titles.breakTitle.borderBottom = '6px solid var(--lightorange)';
         styles.titles.longBreakTitle.color = '';
         styles.titles.longBreakTitle.borderBottom = '';
         
-        styles.font.color = 'var(--lightyellow)';
-        styles.background.background = 'var(--darkyellow)';
+        styles.font.color = 'var(--lightorange)';
+        styles.background.background = 'var(--darkorange)';
       } else { // change ui to reflect next work cycle
         styles.titles.workTitle.color = 'var(--lightred)';
         styles.titles.workTitle.borderBottom = '6px solid var(--lightred)';
@@ -498,7 +550,7 @@ class App extends Component {
   // this will take in seconds and return a string like 03:26
   updateTimeShown(duration) { // in seconds (for now)
     const mins = 
-      (Math.floor((duration/60) % 60))
+      (Math.floor((duration/60)))
       // https://stackoverflow.com/questions/8043026/how-to-format-numbers-by-prepending-0-to-single-digit-numbers
       .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping: false});
     const secs = 
@@ -612,7 +664,8 @@ class App extends Component {
           url={Bell}
           playStatus={Sound.status.PLAYING}
         /> */}
-        <audio src={gentleReminder} ref="bell" />
+        <audio src={GentleReminder} ref="audioGentleReminder" />
+        <audio src={Bell} ref="audioBell" />
       </div>
     );
   }

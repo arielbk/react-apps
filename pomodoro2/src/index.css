@@ -8,8 +8,12 @@
   --lightred: #cf4547;
   --lightgreen: #8df37a;
   --darkgreen: #214a19;
+
   --lightyellow: #cace58;
   --darkyellow: #56571D;
+
+  --lightorange: #d1802a;
+  --darkorange: #836f40;
 }
 
 *, *::before, *::after {
@@ -230,7 +234,7 @@ h1.main-header {
 {
   cursor: pointer;
   color: var(--lightgrey);
-  border-bottom: 6px solid var(--lightyellow) !important;
+  border-bottom: 6px solid var(--lightorange) !important;
 }
 
 .settings-long-break:hover .long-break-title,
@@ -288,7 +292,7 @@ h1.main-header {
 }
 .settings-timer-break:hover a.decrement,
 .settings-timer-break:hover a.increment {
-  color: var(--lightyellow);
+  color: var(--lightorange);
   opacity: 1;
 }
 
