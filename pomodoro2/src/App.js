@@ -157,17 +157,21 @@ class TimeSetter extends Component {
 function SoundSelector(props) {
   return (
     <div className='settings-sound'>
-      <ul>
+      <ul className='sound-unseen'
+      onMouseLeave={(e) => e.target.classList.remove('sound-open')}
+      >
       {props.sounds.map(sound => {
-        let className = 'sound-hidden';
+        let className = '';
+        let onClick = () => props.onSoundSelect(props.timer.name, sound);
         if ((props.timer.name === 'work' && props.workSound === sound) ||
             (props.timer.name === 'break' && props.breakSound === sound) ||
             (props.timer.name === 'longBreak' && props.longBreakSound === sound)) {
           className = 'sound-active';
+          onClick = ((e) => e.target.parentNode.classList.toggle('sound-open'));
         }
         return (
           <li 
-          onClick={() => props.onSoundSelect(props.timer.name, sound)} 
+          onClick={onClick} 
           key={`${props.timer.name}-${sound}`}
           className={className}
           >

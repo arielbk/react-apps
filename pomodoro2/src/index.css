@@ -330,6 +330,7 @@ h1.main-header {
 }
 
 .settings-sound {
+  text-transform: lowercase;
   position: relative;
   display: block;
   width: 220px;
@@ -342,29 +343,57 @@ h1.main-header {
   left: 50%;
   top: -.5em;
   transform: translateX(-50%);
-  background: rgba(0,0,0,.6);
-  padding: .5em;
+  background: rgba(0,0,0,0);
+  transition: .2s;
   margin: 0;
+  border-radius: 5px;
+  padding: .5em;
+}
+
+.settings-sound ul:hover {
+  background: rgba(0,0,0,.6);
 }
 
 .settings-sound ul li {
   list-style: none;
   text-align: center;
-  width: 100%;
+  width: 220px;
+  transition: .2s;
+  padding: .5em 0;
 }
 
 .settings-sound ul li:hover {
   cursor: pointer;
-}
-
-.sound-active {
   color: var(--lightgrey);
 }
 
-.sound-hidden {
-  display:none;
+.settings-work .settings-sound:hover .sound-active {
+  color: var(--lightred);
+}
+.settings-break .settings-sound:hover .sound-active {
+  color: var(--lightorange);
+}
+.settings-long-break .settings-sound:hover .sound-active {
+  color: var(--lightgreen);
 }
 
-.settings-sound:hover .sound-hidden {
+.sound-unseen li:not(.sound-active) {
+  display: none;
+}
+
+.settings-sound .sound-unseen.sound-open li {
   display: block;
+}
+
+.settings-sound .sound-active:hover::after {
+  content: '▾';
+  position: absolute;
+  right: 1em;
+  /* font-size: .5em; */
+}
+
+.settings-sound .sound-open .sound-active::after {
+  content: '▪';
+  position: absolute;
+  right: 1em;
 }
