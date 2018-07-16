@@ -627,7 +627,8 @@ class App extends Component {
       mins,
       secs,
       msecs: '000',
-    }})
+    }});
+    document.title = `${mins}:${secs} - pomodoro timer`;
   }
 
   // --------------------------------------------------------------------------

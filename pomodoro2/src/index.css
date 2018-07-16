@@ -2,10 +2,13 @@
 
 :root {
   --lightgrey: #cacaca;
+  --faintgrey: #282828;
   --medgrey: #3b3b3b;
   --darkgrey: #202020;
+
   --darkred: #50191a;
   --lightred: #cf4547;
+
   --lightgreen: #8df37a;
   --darkgreen: #214a19;
 
@@ -245,25 +248,44 @@ h1.main-header {
 }
 
 
+/* Perhaps I just make a 'settings-item' class to encapsulate all of these */
 
 .settings-timer-work,
 .settings-timer-break,
 .settings-timer-long-break,
 .settings-goal,
-.settings-lb-set {
+.settings-lb-set,
+.settings-sound {
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: color 0.2s;
   margin: 1em 0;
+  border-bottom: 3px solid var(--faintgrey);
+}
+
+.settings-timer-work:hover,
+.settings-goal:hover {
+  border-bottom: 3px solid var(--lightred);
+}
+
+.settings-timer-break:hover {
+  border-bottom: 3px solid var(--lightorange);
+}
+
+.settings-timer-long-break:hover,
+.settings-lb-set:hover {
+  border-bottom: 3px solid var(--lightgreen);
 }
 
 .decrement, .increment {
   border: none;
   background: transparent;
-  font-weight: bold;
+  font-weight: 100;
   font-size: 2rem;
-  opacity: 0;
+  color: var(--faintgrey);
+  /* opacity: 0; */
+
 
   /* noselect: https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting */
   -webkit-user-select: none;
@@ -276,6 +298,7 @@ h1.main-header {
 
 .decrement:hover, .increment:hover {
   cursor: pointer;
+  font-weight: bold;
 }
 
 .settings-timer-work:hover {
@@ -385,11 +408,15 @@ h1.main-header {
   display: block;
 }
 
-.settings-sound .sound-active:hover::after {
+.settings-sound .sound-active::after {
   content: '▾';
   position: absolute;
-  right: 1em;
-  /* font-size: .5em; */
+  right: .7em;
+  color: var(--faintgrey);
+}
+
+.settings-sound .sound-active:hover::after {
+  color: inherit;
 }
 
 .settings-sound .sound-open .sound-active::after {
