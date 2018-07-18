@@ -1,6 +1,11 @@
-// todo: clean design for settings
+// TODO: clean design for settings
 // responsiveness for smaller screens and mobile-specific features
 // timer can be made more efficient and milliseconds added
+// make function to change styles to reflect an active timer
+// add a selection of sounds
+// refactor CSS
+// local storage for user settings
+// access icons locally? Font awesome adds to load time but users may have it cached...
 
 import React, { Component } from 'react';
 
@@ -526,6 +531,10 @@ class App extends Component {
     // if timer ends
     if (timer.timeRemaining < 1) {
       this.handleReset();
+      if (this.state.workTime &&
+          ((this.state.pomodoros + 1) % this.state.pomodoroSet) === 0 ) 
+                        this.setState({ longBreakTime: true });
+      this.setState({ workTime: !this.state.workTime })
 
       // play the appropriate sound for the timer
       if (timer.name === 'work') {
@@ -536,76 +545,58 @@ class App extends Component {
         this.refs[this.state.longBreak.sound].play();
       }
 
-      // UI changes -- before worktime toggle!
-      // empty out the titles styles
+      // empty out titles styles
       styles.titles = {
-        workTitle: {
-          color: '',
-          borderBottom: '',
-        },
-        breakTitle: {
-          color: '',
-          borderBottom: '',
-        },
-        longBreakTitle: {
-          color: '',
-          borderBottom: '',
-        }
+        workTitle: { color: '', borderBottom: '' },
+        breakTitle: { color: '', borderBottom: '' },
+        longBreakTitle: { color: '', borderBottom: '' }
       }
-      if (this.state.workTime && // reflect next long break cycle
-          ((this.state.pomodoros + 1) % this.state.pomodoroSet) === 0 ) {
+
+      if (this.state.longBreakTime ) { // reflect long break cycle
         styles.titles.longBreakTitle.color = 'var(--lightgreen)';
         styles.titles.longBreakTitle.borderBottom = '6px solid var(--lightgreen)';
-        
         styles.font.color = 'var(--lightgreen)';
         styles.background.background = 'var(--darkgreen)';
-      } else if (this.state.workTime) { // reflect next break cycle
-        styles.titles.breakTitle.color = 'var(--lightorange)';
-        styles.titles.breakTitle.borderBottom = '6px solid var(--lightorange)';
 
-        styles.font.color = 'var(--lightorange)';
-        styles.background.background = 'var(--darkorange)';
-      } else { // reflect next work cycle
+        this.updateTimeShown(this.state.longBreak.timeRemaining);
+        this.setState(prevState => { 
+          return { pomodoros: prevState.pomodoros + 1, progressPercent: 0 } 
+        });
+      } else if (this.state.workTime) { // reflect next work cycle
         styles.titles.workTitle.color = 'var(--lightred)';
         styles.titles.workTitle.borderBottom = '6px solid var(--lightred)';
 
         styles.font.color = 'var(--lightred)';
         styles.background.background = 'var(--darkred)';
-      }
 
-      const playPauseIcon = 'fas fa-play';
-
-      // toggle whether it is breaktime and set new ui
-      this.setState({ workTime: !this.state.workTime, styles, playPauseIcon });
-
-      // NEXT timer
-      if (((this.state.pomodoros + 1) % this.state.pomodoroSet) === 0 
-            && !this.state.workTime) { // time for a long break!
-        this.updateTimeShown(this.state.longBreak.timeRemaining);
-        this.setState(prevState => { 
-          return { longBreakTime: true, pomodoros: prevState.pomodoros + 1, progressPercent: 0 } 
-        });
-      } else if (this.state.workTime) { // time to work!
         this.updateTimeShown(this.state.work.timeRemaining);
-        this.setState({ longBreakTime: false, progressPercent: 0 });
-      } else { // time for a short break!
+        this.setState({ longBreakTime: false });
+      } else { // reflect next break cycle
+        styles.titles.breakTitle.color = 'var(--lightorange)';
+        styles.titles.breakTitle.borderBottom = '6px solid var(--lightorange)';
+
+        styles.font.color = 'var(--lightorange)';
+        styles.background.background = 'var(--darkorange)';
+
         this.updateTimeShown(this.state.break.timeRemaining);
         this.setState(prevState => {
-          return { pomodoros: prevState.pomodoros + 1, longBreakTime: false, progressPercent: 0 }
+          return { pomodoros: prevState.pomodoros + 1, longBreakTime: false}
         });
       }
+
+      // set new styles
+      const playPauseIcon = 'fas fa-play';
+      this.setState({ styles, playPauseIcon, progressPercent: 0 });
 
       return; // end function
     };
 
     // V  TIMER IS STILL RUNNING  V
 
-    // immediately decrement the timer we are working with
+    // decrement the active timer
     timer.timeRemaining--;
 
     this.updateTimeShown(timer.timeRemaining);
-
-    // TODO: this will cause problems when the timer duration is changed during an interval
     const progressPercent = Number.parseFloat((timer.duration - timer.timeRemaining) / timer.duration * 100 ).toFixed(2);
 
     // set new state
@@ -637,15 +628,12 @@ class App extends Component {
   //                                           updateTimeShown
   // --------------------------------------------------------------------------
 
-  // this will take in seconds and return a string like 03:26
+  // take in seconds and return minutes and seconds
   updateTimeShown(duration) { // in seconds (for now)
-    const mins = 
-      (Math.floor((duration/60)))
-      // https://stackoverflow.com/questions/8043026/how-to-format-numbers-by-prepending-0-to-single-digit-numbers
-      .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping: false});
-    const secs = 
-      (Math.floor(duration%60))
-      .toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping: false});
+    let mins = Math.floor((duration/60));
+    if (mins < 10) mins = `0${mins}`; // prepend 0 if < 10
+    let secs = Math.floor(duration%60);
+    if (secs < 10) secs = `0${secs}`; // prepend 0 if < 10
     this.setState({ showTime: {
       mins,
       secs,
@@ -664,16 +652,18 @@ class App extends Component {
     // end any running timer function
     clearInterval(this.state.intervalID);
 
-    // if this reset is from the button, some cosmetic changes are also required...
+    // if this reset is from the button, revert to work timer...
     if (resetButton) {
       const styles = JSON.parse(JSON.stringify(this.state.styles));
 
-      styles.titles.workTitle.color = 'var(--lightred)';
-      styles.titles.workTitle.borderBottom = '6px solid var(--lightred)';
-      styles.titles.breakTitle.color = '';
-      styles.titles.breakTitle.borderBottom = '';
-      styles.titles.longBreakTitle.color = '';
-      styles.titles.longBreakTitle.borderBottom = '';
+      styles.title = {
+        workTitle: {
+          color: 'var(--lightred)',
+          borderBottom: '6px solid var(--lightred)'
+        },
+        breakTitle: { color: '', borderBottom: '' },
+        longBreakTitle: { color: '', borderBottom: ''},
+      }
 
       // icon to change
       const playPauseIcon = 'fas fa-play';

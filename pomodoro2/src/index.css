@@ -261,7 +261,7 @@ h1.main-header {
   align-items: center;
   transition: color 0.2s;
   margin: 1em 0;
-  border-bottom: 3px solid var(--faintgrey);
+  border-bottom: 3px solid var(--darkgrey);
 }
 
 .settings-timer-work:hover,
