@@ -1,10 +1,13 @@
-// still need to add timing of milliseconds -- efficiently! also make progress circle smoother
-// add settings section with custom sliders for time and different sounds
-// sounds
+// todo: clean design for settings
 // responsiveness for smaller screens and mobile-specific features
+// timer can be made more efficient and milliseconds added
 
 import React, { Component } from 'react';
-// import Sound from 'react-sound';
+
+  // -----------------------------------------------------------------------------------------
+  //                                                                              SOUNDS
+  // -----------------------------------------------------------------------------------------
+
 import Bell from './bell.mp3';
 import Jingle from './jingle.mp3';
 import GentleReminder from './gentleReminder.mp3';
@@ -13,6 +16,7 @@ import GentleReminder from './gentleReminder.mp3';
   //                                                                              COMPONENTS
   // -----------------------------------------------------------------------------------------
 
+// play/pause button and circular progress bar component
 class ButtonProgress extends Component {
   constructor(props) {
     super(props);
@@ -75,6 +79,7 @@ class ButtonProgress extends Component {
   }
 }
 
+// displays the timer's current time formatted
 function ShowTime(props) {
   return (
     <div className="show-time">
@@ -87,6 +92,7 @@ function ShowTime(props) {
   )
 }
 
+// displays pomodoros completed and pomodoro goal
 function Counters(props) {
   return (
     <div className="counters">
@@ -99,9 +105,11 @@ function Counters(props) {
   )
 }
 
+// container and title for timers' settings component
 function TimerSettings(props) {
   return (
     <div className="timer-settings">
+
       <div className="settings-group settings-work">
         <div className="timer-title work-title" style={props.titleStyles.workTitle}>Work</div>
         <TimeSetter className='settings-timer-work' timer={props.work}
@@ -130,14 +138,13 @@ function TimerSettings(props) {
           onSetChange={change => props.handleSetChange(change)}
           stopSetChange={props.stopSetChange}
         />
-      </div>
+      </div> 
 
-        
-        
     </div>
   )
 }
 
+// settings component - set a time
 class TimeSetter extends Component {
   render() {
     let timerName;
@@ -154,6 +161,7 @@ class TimeSetter extends Component {
   }
 }
 
+//  settings component - select a sound
 function SoundSelector(props) {
   return (
     <div className='settings-sound'>
@@ -184,6 +192,7 @@ function SoundSelector(props) {
   )
 }
 
+// settings component - set a pomodoro goal
 function GoalSetter(props) {
   return (
     <div className='settings-goal'>
@@ -194,6 +203,7 @@ function GoalSetter(props) {
   )
 }
 
+// settings component - set the number of pomodoros until a long break
 function LongBreakSetter(props) {
   return (
     <div className={`settings-lb-set`} >
@@ -213,21 +223,29 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // boolean - is the work timer currently active? else break timer is active
+      // these two booleans will determine whether it is work, break, or longBreak time
+      // but should they just be simplified into one?
       workTime: true,
       longBreakTime: false,
+
+      // the interval for the timer function (in order to stop it)
       intervalID: 0,
+      // whether the active timer is currently running, and whether it has started (it can be started but paused)
       timing: false,
       timerStarted: false,
 
+      // helps with the settings incrementors and decrementors that fire while the mouse is down
       mouseDown: false,
 
+      // current percentage of time elapsed in active timer - to display for the progress bar
       progressPercent: 0,
 
+      // pomodoros completed, pomodoro goal, pomodoros between each long break
       pomodoros: 0,
       goal: 8,
-      pomodoroSet: 4, // number of pomodoros before a long break
+      pomodoroSet: 4,
 
+      // sound names to assign to a timer
       sounds: [
         'Bell',
         'Jingle',
@@ -237,7 +255,7 @@ class App extends Component {
       // WORK TIMER
       work: {
         name: 'work',
-        duration: 1500, // 25*60 -- 25 minutes is default - set to 1500
+        duration: 1500, // 25*60 -- 25 minutes is default
         timeRemaining: 1500,
         sound: 'Bell',
       },
@@ -245,7 +263,7 @@ class App extends Component {
       // BREAK TIMER
       break: {
         name: 'break',
-        duration: 300,
+        duration: 300, // 5 minutes default
         timeRemaining: 300,
         sound: 'Jingle',
       },
@@ -253,15 +271,17 @@ class App extends Component {
       // LONG BREAK TIMER
       longBreak: {
         name: 'longBreak',
-        duration: 900,
+        duration: 900, // 15 minutes default
         timeRemaining: 900,
         sound: 'GentleReminder'
       },
 
       styles: {
+        // for the play and pause inner icon and the minutes remaining display
         font: {
           color: 'var(--lightred)',
         },
+        // used for the progress bar background
         background: {
           background: 'var(--darkred)',
         },
@@ -281,6 +301,7 @@ class App extends Component {
         }
       },
 
+      // time remaining to display - default work 25 min
       showTime: {
         mins: '25',
         secs: '00',
@@ -290,6 +311,9 @@ class App extends Component {
       playPauseIcon: 'fas fa-play',
     }
 
+  // -----------------------------------------------------------------------------------------
+  //                                                                        `this` BINDINGS
+  // -----------------------------------------------------------------------------------------
     this.handlePlayPause = this.handlePlayPause.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleDurationChange = this.handleDurationChange.bind(this);
@@ -321,12 +345,12 @@ class App extends Component {
     }
   }
 
+  // keep track of mouse down and mouse up, and any key press
   componentDidMount() {
     document.addEventListener('mousedown', this.setMouseDown);
     document.addEventListener('mouseup', this.setMouseUp);
     document.addEventListener('keyup', this.handleKeyPress);
   }
-
   componentWillUnmount() {
     document.removeEventListener('mousedown', this.setMouseDown);
     document.removeEventListener('mouseup', this.setMouseUp);
@@ -342,6 +366,7 @@ class App extends Component {
   // --------------------------------------------------------------------------
 
   handleSoundSelect(timer,sound) {
+
     // clone timer
     timer = this.timerClone(timer);
     timer.sound = sound;
@@ -356,15 +381,16 @@ class App extends Component {
   }
 
   // --------------------------------------------------------------------------
-  //                                           change sets to long break
+  //                                     change # of sets until long break
   // --------------------------------------------------------------------------
+
 
   handleSetChange(change) {
     const pomodoroSet = this.state.pomodoroSet + change;
     if (pomodoroSet < 1) return;
     this.setState({ pomodoroSet });
 
-    // recurse the function if mouse click is held
+    // continue recursing the function every 0.1 seconds if mouse click is held
     setTimeout(() => {
       if (this.state.mouseDown) this.handleSetChange(change);
     }, 100);
@@ -379,7 +405,7 @@ class App extends Component {
     if (goal < 1) return;
     this.setState({goal});
 
-    // recurse the function if mouse click is held
+    // continue recursing the function every 0.1 seconds if mouse click is held
     setTimeout(() => {
       if (this.state.mouseDown) this.handleGoalChange(change);
     }, 100);
@@ -390,17 +416,18 @@ class App extends Component {
   // --------------------------------------------------------------------------
 
   handleDurationChange(timer, change) {
-    // clone timer and return immediately if it is 0 or less, or more than 99 minutes
+
+    // clone timer and return if new duration is inappropriate
     timer = this.timerClone(timer);
     timer.duration = timer.duration + change * 60;
-    if (timer.duration < 0 || timer.duration > 5940) return;
+    if (timer.duration < 0 || timer.duration > 5940) return; // 0 < timer < 99 minutes
 
     // to determine whether changes are being made to the active timer
     const workActive = timer.name === 'work' && this.state.workTime;
     const breakActive = timer.name === 'break' && !this.state.workTime && !this.state.longBreakTime;
     const longBreakActive = timer.name === 'longBreak' && this.state.longBreakTime;
 
-    // time will need to be added to the timer as its adjusted for active running timer
+    // time is added to active running timers to adjust
     if (timer.timing) {
       if (workActive) {
         timer.timeRemaining += change * 60;
@@ -411,7 +438,7 @@ class App extends Component {
       if (longBreakActive) {
         timer.timeRemaining += change * 60;
       }
-    } else { // i.e. if the timer is not running and the change is to active time, the shown time should also update
+    } else { // i.e. if the activetimer is not running, the time display just updates
       if (workActive || breakActive || longBreakActive) {
         this.updateTimeShown(timer.duration);
       }
@@ -424,7 +451,7 @@ class App extends Component {
 
     // recurse the function if mouse click is held
     setTimeout(() => {
-      //surely I do not want to clone it every time though...
+      // although this forces a new timer everytime the function is run
       if (this.state.mouseDown) this.handleDurationChange(timer.name, change);
     }, 100);
 
@@ -435,7 +462,7 @@ class App extends Component {
   // --------------------------------------------------------------------------
 
   handlePlayPause() {
-    // clone active timer and track whether working with break, long break or work timer
+    // clone active timer
     let timer;
     if (this.state.longBreakTime) {
       timer = this.timerClone('longBreak');
@@ -461,12 +488,6 @@ class App extends Component {
     timer.started = true;
     timer.timing = !timer.timing;
 
-    // // styles to reset
-    // const styles = JSON.parse(JSON.stringify(this.state.styles)); // deep clone
-    // timer.timing
-    //   ? styles.playPause.color = 'var(--lightred)'
-    //   : styles.playPause.color = 'var(--lightgreen)';
-
     // icon to change
     let playPauseIcon = {...this.state.playPauseIcon};
     timer.timing
@@ -487,9 +508,9 @@ class App extends Component {
   // --------------------------------------------------------------------------
 
   // timer function called every second while timer is on
-  timerFunc() { // timer passed in is EITHER the work or break timer object
+  timerFunc() {
 
-    // clone active timer and track whether working with break, long break or work timer
+    // clone active timer
     let timer;
     if (this.state.longBreakTime) {
       timer = this.timerClone('longBreak');
@@ -506,6 +527,7 @@ class App extends Component {
     if (timer.timeRemaining < 1) {
       this.handleReset();
 
+      // play the appropriate sound for the timer
       if (timer.name === 'work') {
         this.refs[this.state.work.sound].play();
       } else if (timer.name === 'break') {
@@ -515,42 +537,43 @@ class App extends Component {
       }
 
       // UI changes -- before worktime toggle!
-      // must be a better way than all this repetition...
-      if (this.state.workTime &&
+      // empty out the titles styles
+      styles.titles = {
+        workTitle: {
+          color: '',
+          borderBottom: '',
+        },
+        breakTitle: {
+          color: '',
+          borderBottom: '',
+        },
+        longBreakTitle: {
+          color: '',
+          borderBottom: '',
+        }
+      }
+      if (this.state.workTime && // reflect next long break cycle
           ((this.state.pomodoros + 1) % this.state.pomodoroSet) === 0 ) {
-        styles.titles.workTitle.color = '';
-        styles.titles.workTitle.borderBottom = '';
-        styles.titles.breakTitle.color = '';
-        styles.titles.breakTitle.borderBottom = '';
         styles.titles.longBreakTitle.color = 'var(--lightgreen)';
         styles.titles.longBreakTitle.borderBottom = '6px solid var(--lightgreen)';
         
         styles.font.color = 'var(--lightgreen)';
         styles.background.background = 'var(--darkgreen)';
-      } else if (this.state.workTime) { // change ui to reflect next break cycle
-        styles.titles.workTitle.color = '';
-        styles.titles.workTitle.borderBottom = '';
+      } else if (this.state.workTime) { // reflect next break cycle
         styles.titles.breakTitle.color = 'var(--lightorange)';
         styles.titles.breakTitle.borderBottom = '6px solid var(--lightorange)';
-        styles.titles.longBreakTitle.color = '';
-        styles.titles.longBreakTitle.borderBottom = '';
-        
+
         styles.font.color = 'var(--lightorange)';
         styles.background.background = 'var(--darkorange)';
-      } else { // change ui to reflect next work cycle
+      } else { // reflect next work cycle
         styles.titles.workTitle.color = 'var(--lightred)';
         styles.titles.workTitle.borderBottom = '6px solid var(--lightred)';
-        styles.titles.breakTitle.color = '';
-        styles.titles.breakTitle.borderBottom = '';
-        styles.titles.longBreakTitle.color = '';
-        styles.titles.longBreakTitle.borderBottom = '';
-        
+
         styles.font.color = 'var(--lightred)';
         styles.background.background = 'var(--darkred)';
       }
 
       const playPauseIcon = 'fas fa-play';
-      // styles.playPause.color = 'var(--lightgreen)';
 
       // toggle whether it is breaktime and set new ui
       this.setState({ workTime: !this.state.workTime, styles, playPauseIcon });
