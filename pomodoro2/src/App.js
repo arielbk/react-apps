@@ -6,6 +6,7 @@
 // refactor CSS
 // local storage for user settings
 // access icons locally? Font awesome adds to load time but users may have it cached...
+// also - google fonts to local
 
 import React, { Component } from 'react';
 
@@ -120,7 +121,7 @@ function TimerSettings(props) {
         <TimeSetter className='settings-timer-work' timer={props.work}
           onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
         />
-        <SoundSelector workSound={props.workSound} timer={props.work} onSoundSelect={(timer, sound) => props.onSoundSelect('work', sound)} sounds={props.sounds}/>
+        <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.workSound} timer={props.work} onSoundSelect={(timer, sound) => props.onSoundSelect('work', sound)} sounds={props.sounds}/>
         <GoalSetter goal={props.goal} onGoalChange={change => props.onGoalChange(change)} />
       </div>
       
@@ -129,7 +130,7 @@ function TimerSettings(props) {
         <TimeSetter classname='settings-timer-break' timer={props.break} 
           onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
         />
-        <SoundSelector breakSound={props.breakSound} timer={props.break} onSoundSelect={(timer, sound) => props.onSoundSelect('break', sound)} sounds={props.sounds}/>
+        <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.breakSound} timer={props.break} onSoundSelect={(timer, sound) => props.onSoundSelect('break', sound)} sounds={props.sounds}/>
       </div>
 
       <div className="settings-group settings-long-break">
@@ -137,7 +138,7 @@ function TimerSettings(props) {
         <TimeSetter classname='settings-timer-long-break' timer={props.longBreak} 
           onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
         />
-        <SoundSelector longBreakSound={props.longBreakSound} timer={props.longBreak} onSoundSelect={(timer, sound) => props.onSoundSelect('longBreak', sound)} sounds={props.sounds}/>
+        <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.longBreakSound} timer={props.longBreak} onSoundSelect={(timer, sound) => props.onSoundSelect('longBreak', sound)} sounds={props.sounds}/>
         <LongBreakSetter
           pomodoroSet={props.pomodoroSet}
           onSetChange={change => props.handleSetChange(change)}
@@ -157,10 +158,10 @@ class TimeSetter extends Component {
       ? timerName = 'long-break'
       : timerName = this.props.timer.name;
     return (
-      <div className={`settings-timer-${timerName}`} >
-        <a className='decrement' onMouseDown={() => this.props.onDurationChange(this.props.timer.name, -1)}>–</a>
+      <div className={`settings-item settings-timer-${timerName}`} >
+        <a className='decrement noselect' onMouseDown={() => this.props.onDurationChange(this.props.timer.name, -1)}>–</a>
         <div className='settings-timer-show'>{Math.floor(this.props.timer.duration / 60)} min</div>
-        <a className='increment' onMouseDown={() => this.props.onDurationChange(this.props.timer.name, +1 )}>+</a>
+        <a className='increment noselect' onMouseDown={() => this.props.onDurationChange(this.props.timer.name, +1 )}>+</a>
       </div>
     );
   }
@@ -168,31 +169,35 @@ class TimeSetter extends Component {
 
 //  settings component - select a sound
 function SoundSelector(props) {
+
   return (
-    <div className='settings-sound'>
-      <ul className='sound-unseen'
-      onMouseLeave={(e) => e.target.classList.remove('sound-open')}
-      >
-      {props.sounds.map(sound => {
-        let className = '';
-        let onClick = () => props.onSoundSelect(props.timer.name, sound);
-        if ((props.timer.name === 'work' && props.workSound === sound) ||
-            (props.timer.name === 'break' && props.breakSound === sound) ||
-            (props.timer.name === 'longBreak' && props.longBreakSound === sound)) {
-          className = 'sound-active';
-          onClick = ((e) => e.target.parentNode.classList.toggle('sound-open'));
-        }
-        return (
-          <li 
-          onClick={onClick} 
-          key={`${props.timer.name}-${sound}`}
-          className={className}
-          >
-            {sound}
-          </li>
-        )
-      })}
-      </ul>
+    <div className={`settings-item settings-sound settings-sound-${props.timer.name}`} >
+      <a className='sound-prev-arrow noselect' onMouseDown={() => {
+        let newIndex = props.sounds.indexOf(props.activeSound);
+
+        if (newIndex < 1 ) { newIndex = props.sounds.length-1; }
+        else { newIndex-- }
+
+        props.onSoundSelect(props.timer.name, props.sounds[newIndex]);
+      }}>◀</a>
+        <ul className='sound-list'>
+          {props.sounds.map(sound => {
+            return <li key={`sound-${props.timer.name}-${sound}`} className={sound === props.activeSound ? 'sound-active' : 'sound-hidden'}><span className='sound-icon' onClick={() => props.onSampleSound(props.timer.name)}><i className="fas fa-volume-up"></i></span> {sound}</li>
+          })}
+        </ul>
+      <a className='sound-next-arrow noselect' onMouseDown={() => {
+        let newIndex = props.sounds.indexOf(props.activeSound);
+
+        if (newIndex === props.sounds.length - 1 ) { newIndex = 0; }
+        else { newIndex++ }
+
+        props.onSoundSelect(props.timer.name, props.sounds[newIndex]);
+      }}>►</a>
+      <div className='sound-progress'>
+        {props.sounds.map(sound => {
+          return <div className={sound === props.activeSound ? 'sound-progress-tab sound-progress-tab-active' : 'sound-progress-tab'}></div>
+        })}
+      </div>
     </div>
   )
 }
@@ -200,10 +205,10 @@ function SoundSelector(props) {
 // settings component - set a pomodoro goal
 function GoalSetter(props) {
   return (
-    <div className='settings-goal'>
-        <a className='decrement' onMouseDown={() => props.onGoalChange(-1)}>–</a>
+    <div className='settings-item settings-goal'>
+        <a className='decrement noselect' onMouseDown={() => props.onGoalChange(-1)}>–</a>
         <div className='settings-goal-show'>Goal : {props.goal}</div>
-        <a className='increment' onMouseDown={() => props.onGoalChange(+1)}>+</a>
+        <a className='increment noselect' onMouseDown={() => props.onGoalChange(+1)}>+</a>
       </div>
   )
 }
@@ -211,10 +216,10 @@ function GoalSetter(props) {
 // settings component - set the number of pomodoros until a long break
 function LongBreakSetter(props) {
   return (
-    <div className={`settings-lb-set`} >
-        <a className='decrement' onMouseDown={() => props.onSetChange(-1)} onMouseUp={props.stopSetChange}>–</a>
+    <div className='settings-item settings-lb-set' >
+        <a className='decrement noselect' onMouseDown={() => props.onSetChange(-1)} onMouseUp={props.stopSetChange}>–</a>
         <div className='settings-goal-show'>Every {props.pomodoroSet}</div>
-        <a className='increment' onMouseDown={() => props.onSetChange(+1)} onMouseUp={props.stopSetChange}>+</a>
+        <a className='increment noselect' onMouseDown={() => props.onSetChange(+1)} onMouseUp={props.stopSetChange}>+</a>
       </div>
   )
 }
@@ -745,6 +750,15 @@ class App extends Component {
           breakSound={this.state.break.sound}
           longBreakSound={this.state.longBreak.sound}
           onSoundSelect={(timer, sound) => this.handleSoundSelect(timer, sound)}
+          onSampleSound={timer => {
+            if (timer === 'work') {
+              this.refs[this.state.work.sound].play();
+            } else if (timer === 'break') {
+              this.refs[this.state.break.sound].play();
+            } else if (timer === 'longBreak') {
+              this.refs[this.state.longBreak.sound].play();
+            }
+          }}
         />
         <audio src={GentleReminder} ref="GentleReminder" />
         <audio src={Jingle} ref="Jingle" />

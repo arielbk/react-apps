@@ -30,7 +30,6 @@ body {
   font-size: 20px;
   background: #111;
   color: var(--medgrey);
-  /* display: flex; */
 }
 
 .app {
@@ -250,32 +249,14 @@ h1.main-header {
 
 /* Perhaps I just make a 'settings-item' class to encapsulate all of these */
 
-.settings-timer-work,
-.settings-timer-break,
-.settings-timer-long-break,
-.settings-goal,
-.settings-lb-set,
-.settings-sound {
+.settings-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: color 0.2s;
   margin: 1em 0;
   border-bottom: 3px solid var(--darkgrey);
-}
-
-.settings-timer-work:hover,
-.settings-goal:hover {
-  border-bottom: 3px solid var(--lightred);
-}
-
-.settings-timer-break:hover {
-  border-bottom: 3px solid var(--lightorange);
-}
-
-.settings-timer-long-break:hover,
-.settings-lb-set:hover {
-  border-bottom: 3px solid var(--lightgreen);
+  text-transform: lowercase;
 }
 
 .decrement, .increment {
@@ -283,18 +264,17 @@ h1.main-header {
   background: transparent;
   font-weight: 100;
   font-size: 2rem;
-  color: var(--faintgrey);
-  /* opacity: 0; */
-
-
-  /* noselect: https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting */
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  color: var(--darkgrey);
 }
 
+.noselect {
+    /* noselect: https://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting */
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 
 .decrement:hover, .increment:hover {
   cursor: pointer;
@@ -328,9 +308,6 @@ h1.main-header {
   opacity: 1;
 }
 
-.settings-goal {
-  text-transform: lowercase;
-}
 .settings-goal:hover {
   color: var(--lightgrey);
 }
@@ -340,9 +317,6 @@ h1.main-header {
   opacity: 1;
 }
 
-.settings-lb-set {
-  text-transform: lowercase;
-}
 .settings-lb-set:hover {
   color: var(--lightgrey);
 }
@@ -352,35 +326,80 @@ h1.main-header {
   opacity: 1;
 }
 
+
+
+
+
+
+
 .settings-sound {
-  text-transform: lowercase;
-  position: relative;
-  display: block;
+  flex-wrap: wrap;
+
   width: 220px;
-  height: 2em;
+  /* height: 2em; */
   text-align: center;
 }
 
+.sound-prev-arrow,
+.sound-next-arrow {
+  font-size: .8em;
+  color: var(--darkgrey);
+  transition: color .3s;
+}
+
+.sound-prev-arrow:hover,
+.sound-next-arrow:hover {
+  cursor: pointer;
+}
+
+.settings-sound-work:hover .sound-prev-arrow,
+.settings-sound-work:hover .sound-next-arrow {
+  color: var(--lightred);
+}
+.settings-sound-break:hover .sound-prev-arrow,
+.settings-sound-break:hover .sound-next-arrow {
+  color: var(--lightorange);
+}
+.settings-sound-longBreak:hover .sound-prev-arrow,
+.settings-sound-longBreak:hover .sound-next-arrow {
+  color: var(--lightgreen);
+}
+
+.settings-sound .sound-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  background: var(--medgrey);
+  padding: 2px;
+  width: 1em;
+  height: 1em;
+  border-radius: 100%;
+  margin-right: .5em;
+  transition: background .3s;
+}
+
+.settings-sound .sound-icon:hover {
+  background: var(--lightgrey);
+  cursor: pointer;
+}
+
+.settings-sound i {
+  font-size: .7em;
+  color: var(--darkgrey);
+}
+
 .settings-sound ul {
-  position: absolute;
-  left: 50%;
-  top: -.5em;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0);
   transition: .2s;
   margin: 0;
   border-radius: 5px;
   padding: .5em;
 }
 
-.settings-sound ul:hover {
-  background: rgba(0,0,0,.6);
-}
-
 .settings-sound ul li {
   list-style: none;
   text-align: center;
-  width: 220px;
+  /* width: 220px; */
   transition: .2s;
   padding: .5em 0;
 }
@@ -390,37 +409,54 @@ h1.main-header {
   color: var(--lightgrey);
 }
 
-.settings-work .settings-sound:hover .sound-active {
-  color: var(--lightred);
-}
-.settings-break .settings-sound:hover .sound-active {
-  color: var(--lightorange);
-}
-.settings-long-break .settings-sound:hover .sound-active {
-  color: var(--lightgreen);
+.settings-sound:hover .increment,
+.settings-sound:hover .decrement {
+  color: red;
 }
 
-.sound-unseen li:not(.sound-active) {
+.settings-sound:hover .sound-active {
+  color: var(--lightgrey);
+}
+
+.settings-sound:hover .sound-progress-tab {
+  opacity: 1;
+}
+
+
+.sound-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.sound-hidden {
   display: none;
 }
 
-.settings-sound .sound-unseen.sound-open li {
-  display: block;
+.sound-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 80%;
+  height: 6px;
+  border-radius: 6px;
+  flex-basis: 100%;
 }
 
-.settings-sound .sound-active::after {
-  content: '▾';
-  position: absolute;
-  right: .7em;
-  color: var(--faintgrey);
+.sound-progress-tab {
+  background: var(--medgrey);
+  height: 6px;
+  width: 100%;
+  margin: 0 3px;
+  border-radius: 6px;
+  transition: background .3s;
+  transition: opacity .3s;
+  opacity: 0;
 }
 
-.settings-sound .sound-active:hover::after {
-  color: inherit;
+.sound-progress-tab-active{
+  background: var(--lightgrey);
 }
 
-.settings-sound .sound-open .sound-active::after {
-  content: '▪';
-  position: absolute;
-  right: 1em;
-}
