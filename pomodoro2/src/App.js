@@ -7,6 +7,7 @@
 // local storage for user settings
 // access icons locally? Font awesome adds to load time but users may have it cached...
 // also - google fonts to local
+// allow for multiple sounds at once (the next will not currently play when sampling)
 
 import React, { Component } from 'react';
 
@@ -14,9 +15,15 @@ import React, { Component } from 'react';
   //                                                                              SOUNDS
   // -----------------------------------------------------------------------------------------
 
-import Bell from './bell.mp3';
-import Jingle from './jingle.mp3';
-import GentleReminder from './gentleReminder.mp3';
+import Bell1 from './Sounds/bell1.mp3';
+import Bell2 from './Sounds/bell2.mp3';
+import Coin from './Sounds/coin.mp3';
+import Triumph from './Sounds/triumph.mp3';
+import LevelUp from './Sounds/levelup.mp3';
+import Success from './Sounds/success.mp3';
+import Tadaa from './Sounds/tadaa.mp3';
+import Winning from './Sounds/winning.mp3';
+import WinSynth from './Sounds/winsynth.mp3';
 
   // -----------------------------------------------------------------------------------------
   //                                                                              COMPONENTS
@@ -123,7 +130,7 @@ function TimerSettings(props) {
         />
         <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.workSound} timer={props.work} onSoundSelect={(timer, sound) => props.onSoundSelect('work', sound)} sounds={props.sounds}/>
         <GoalSetter goal={props.goal} onGoalChange={change => props.onGoalChange(change)} />
-      </div>
+        </div>
       
       <div className="settings-group settings-break">
         <div className="timer-title break-title" style={props.titleStyles.breakTitle}>Break</div>
@@ -145,6 +152,7 @@ function TimerSettings(props) {
           stopSetChange={props.stopSetChange}
         />
       </div> 
+
 
     </div>
   )
@@ -194,8 +202,8 @@ function SoundSelector(props) {
         props.onSoundSelect(props.timer.name, props.sounds[newIndex]);
       }}>►</a>
       <div className='sound-progress'>
-        {props.sounds.map(sound => {
-          return <div className={sound === props.activeSound ? 'sound-progress-tab sound-progress-tab-active' : 'sound-progress-tab'}></div>
+        {props.sounds.map((sound, index) => {
+          return <div onClick={() => props.onSoundSelect(props.timer.name, props.sounds[index])} key={`sound-tab-${props.timer.name}-${sound}`} className={sound === props.activeSound ? 'sound-progress-tab sound-progress-tab-active' : 'sound-progress-tab'}></div>
         })}
       </div>
     </div>
@@ -238,6 +246,8 @@ class App extends Component {
       workTime: true,
       longBreakTime: false,
 
+      showSettings: false,
+
       // the interval for the timer function (in order to stop it)
       intervalID: 0,
       // whether the active timer is currently running, and whether it has started (it can be started but paused)
@@ -257,9 +267,15 @@ class App extends Component {
 
       // sound names to assign to a timer
       sounds: [
-        'Bell',
-        'Jingle',
-        'GentleReminder'
+        'Bell1',
+        'Bell2',
+        'Coin',
+        'Triumph',
+        'LevelUp',
+        'Success',
+        'Tadaa',
+        'Winning',
+        'WinSynth',
       ],
 
       // WORK TIMER
@@ -267,7 +283,7 @@ class App extends Component {
         name: 'work',
         duration: 1500, // 25*60 -- 25 minutes is default
         timeRemaining: 1500,
-        sound: 'Bell',
+        sound: 'Triumph',
       },
 
       // BREAK TIMER
@@ -275,7 +291,7 @@ class App extends Component {
         name: 'break',
         duration: 300, // 5 minutes default
         timeRemaining: 300,
-        sound: 'Jingle',
+        sound: 'WinSynth',
       },
 
       // LONG BREAK TIMER
@@ -283,7 +299,7 @@ class App extends Component {
         name: 'longBreak',
         duration: 900, // 15 minutes default
         timeRemaining: 900,
-        sound: 'GentleReminder'
+        sound: 'Winning'
       },
 
       styles: {
@@ -735,7 +751,7 @@ class App extends Component {
             goal={this.state.goal}
           />
         </div>
-        <TimerSettings
+          <TimerSettings
           titleStyles={this.state.styles.titles}
           work={this.state.work}
           break={this.state.break}
@@ -759,10 +775,19 @@ class App extends Component {
               this.refs[this.state.longBreak.sound].play();
             }
           }}
-        />
-        <audio src={GentleReminder} ref="GentleReminder" />
-        <audio src={Jingle} ref="Jingle" />
-        <audio src={Bell} ref="Bell" />
+          showSettings={this.state.showSettings}
+          />
+        
+        <audio src={Bell1} ref="Bell1" />
+        <audio src={Bell2} ref="Bell2" />
+        <audio src={Coin} ref="Coin" />
+        <audio src={Triumph} ref="Triumph" />
+        <audio src={LevelUp} ref="LevelUp" />
+        <audio src={Success} ref="Success" />
+        <audio src={Tadaa} ref="Tadaa" />
+        <audio src={Winning} ref="Winning" />
+        <audio src={WinSynth} ref="WinSynth" />
+
       </div>
     );
   }

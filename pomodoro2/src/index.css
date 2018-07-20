@@ -1,3 +1,7 @@
+/* Responsive screen sizes for media queries:
+320px (small phone)
+768 (small tablet) */
+
 @import url('https://fonts.googleapis.com/css?family=Roboto:400|Rubik:400');
 
 :root {
@@ -15,7 +19,7 @@
   --lightyellow: #cace58;
   --darkyellow: #56571D;
 
-  --lightorange: #d1802a;
+  --lightorange: #E2D34E;
   --darkorange: #836f40;
 }
 
@@ -192,7 +196,12 @@ h1.main-header {
 }
 
 
-/* this is just a marker for when I come to it... and so it looks okay for now */
+
+
+
+
+
+
 .settings {
   color: var(--lightred);
   text-align: center;
@@ -201,11 +210,22 @@ h1.main-header {
   opacity: .4;
 }
 
+.general-settings {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  width: 100%;
+  border-top: 3px solid var(--faintgrey);
+  padding-top: 1em;
+  margin-top: 1em;
+}
+
 .timer-settings {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  /* flex-wrap: nowrap; */
+  flex-wrap: wrap;
 }
 
 
@@ -247,7 +267,7 @@ h1.main-header {
 }
 
 
-/* Perhaps I just make a 'settings-item' class to encapsulate all of these */
+
 
 .settings-item {
   display: flex;
@@ -257,6 +277,8 @@ h1.main-header {
   margin: 1em 0;
   border-bottom: 3px solid var(--darkgrey);
   text-transform: lowercase;
+  min-height: 41px;
+  width: 220px;
 }
 
 .decrement, .increment {
@@ -379,7 +401,7 @@ h1.main-header {
   transition: background .3s;
 }
 
-.settings-sound .sound-icon:hover {
+.settings-item:hover .sound-icon {
   background: var(--lightgrey);
   cursor: pointer;
 }
@@ -436,27 +458,49 @@ h1.main-header {
 
 .sound-progress {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 
-  width: 80%;
-  height: 6px;
+  height: 12px;
   border-radius: 6px;
   flex-basis: 100%;
 }
 
 .sound-progress-tab {
   background: var(--medgrey);
-  height: 6px;
-  width: 100%;
-  margin: 0 3px;
-  border-radius: 6px;
-  transition: background .3s;
-  transition: opacity .3s;
+  height: 13px;
+  width: 13px;
+  margin: 0 4px;
+  border-radius: 100%;
+  transition: .3s;
   opacity: 0;
 }
-
-.sound-progress-tab-active{
+.sound-progress-tab:hover {
+  cursor: pointer;
   background: var(--lightgrey);
 }
 
+.sound-progress-tab-active{
+  transform: scale(1.2);
+}
+
+
+.settings-work .sound-progress-tab:hover:not(.sound-progress-tab-active) {
+  background: var(--darkred);
+}
+.settings-work .sound-progress-tab-active {
+  background: var(--lightred);
+}
+.settings-break .sound-progress-tab:hover:not(.sound-progress-tab-active) {
+  background: var(--darkorange);
+}
+.settings-break .sound-progress-tab-active {
+  background: var(--lightorange);
+}
+.settings-long-break .sound-progress-tab:hover:not(.sound-progress-tab-active) {
+  cursor: pointer;
+  background: var(--darkgreen);
+}
+.settings-long-break .sound-progress-tab-active {
+  background: var(--lightgreen);
+}
