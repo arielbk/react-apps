@@ -37,12 +37,13 @@ body {
 }
 
 .app {
+  position: relative;
   max-width: 940px;
   background: var(--darkgrey);
   box-shadow: 0 12px 50px rgba(0,0,0,.6);
   border-radius: 5px;
   margin: 30px auto 60px auto;
-  padding: 40px 60px 40px 60px;
+  padding: 40px 60px 80px 60px;
 }
 
 h1, h2 {
@@ -79,7 +80,7 @@ h1.main-header {
   height: 150px;
 }
 
-.close-button {
+.reset-button {
   position: absolute;
   top: -15px;
   right: -15px;
@@ -87,7 +88,7 @@ h1.main-header {
   font-weight: 900;
 }
 
-.close-button:hover {
+.reset-button:hover {
   color: var(--lightred);
   cursor: pointer;
 }
@@ -202,30 +203,16 @@ h1.main-header {
 
 
 
-.settings {
-  color: var(--lightred);
-  text-align: center;
-  text-decoration: underline;
-  margin-top: 60px;
-  opacity: .4;
-}
-
-.general-settings {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-
-  width: 100%;
-  border-top: 3px solid var(--faintgrey);
-  padding-top: 1em;
-  margin-top: 1em;
-}
-
 .timer-settings {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
+}
+
+.timer-settings-content {
+  overflow: hidden;
+  transition: 1s;
 }
 
 
@@ -279,6 +266,7 @@ h1.main-header {
   text-transform: lowercase;
   min-height: 41px;
   width: 220px;
+  position: relative;
 }
 
 .decrement, .increment {
@@ -348,6 +336,11 @@ h1.main-header {
   opacity: 1;
 }
 
+.settings-goal,
+.settings-lb-set {
+  margin-top: 30px;
+}
+
 
 
 
@@ -360,6 +353,9 @@ h1.main-header {
   width: 220px;
   /* height: 2em; */
   text-align: center;
+  border-bottom: 1px solid var(--faintgrey);
+  border-top: 1px solid var(--faintgrey);
+  padding-bottom: 15px;
 }
 
 .sound-prev-arrow,
@@ -399,6 +395,8 @@ h1.main-header {
   border-radius: 100%;
   margin-right: .5em;
   transition: background .3s;
+  position: absolute;
+  left: 2em;
 }
 
 .settings-item:hover .sound-icon {
@@ -480,9 +478,6 @@ h1.main-header {
   background: var(--lightgrey);
 }
 
-.sound-progress-tab-active{
-  transform: scale(1.2);
-}
 
 
 .settings-work .sound-progress-tab:hover:not(.sound-progress-tab-active) {
@@ -503,4 +498,76 @@ h1.main-header {
 }
 .settings-long-break .sound-progress-tab-active {
   background: var(--lightgreen);
+}
+
+.timer-settings-content {
+  max-height: 0;
+  overflow: hidden;
+}
+
+
+
+
+
+
+
+.about-pomodoro {
+  position: absolute;
+  top: 6em;
+  width: calc(100% - 120px);
+  background: var(--lightgrey);
+  color: var(--darkgrey);
+  border-radius: 6px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: .95;
+
+  transition: 1s ease-in-out;
+}
+
+.close-btn-about {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 2em;
+}
+.close-btn-about:hover {
+  color: var(--lightred);
+  cursor: pointer;
+}
+
+
+
+
+
+.options {
+  position: absolute;
+  right: 60px;
+  top: 4.5em;
+  font-size: .8em;
+
+
+}
+
+.options-btn-settings,
+.options-btn-about {
+  background: var(--lightgrey);
+  color: var(--darkgrey);
+  border-radius: 6px;
+
+  padding: .5em;
+}
+
+.options,
+.options-btn-settings,
+.options-btn-about {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.options-btn-settings:hover,
+.options-btn-about:hover {
+  background: var(--lightgrey);
+  cursor: pointer;
 }

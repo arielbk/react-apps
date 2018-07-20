@@ -2,7 +2,6 @@
 // responsiveness for smaller screens and mobile-specific features
 // timer can be made more efficient and milliseconds added
 // make function to change styles to reflect an active timer
-// add a selection of sounds
 // refactor CSS
 // local storage for user settings
 // access icons locally? Font awesome adds to load time but users may have it cached...
@@ -15,15 +14,11 @@ import React, { Component } from 'react';
   //                                                                              SOUNDS
   // -----------------------------------------------------------------------------------------
 
-import Bell1 from './Sounds/bell1.mp3';
-import Bell2 from './Sounds/bell2.mp3';
-import Coin from './Sounds/coin.mp3';
+
+import Bell from './Sounds/bell.mp3';
 import Triumph from './Sounds/triumph.mp3';
 import LevelUp from './Sounds/levelup.mp3';
-import Success from './Sounds/success.mp3';
-import Tadaa from './Sounds/tadaa.mp3';
 import Winning from './Sounds/winning.mp3';
-import WinSynth from './Sounds/winsynth.mp3';
 
   // -----------------------------------------------------------------------------------------
   //                                                                              COMPONENTS
@@ -76,7 +71,7 @@ class ButtonProgress extends Component {
   render() {
       return (
     <div className="buttons-container">  
-      <div className="close-button" onClick={this.props.onReset}>✕</div>
+      <div className="reset-button" onClick={this.props.onReset}>✕</div>
       <div 
         className="button-progress"
         onClick={this.props.handleClick}
@@ -121,36 +116,42 @@ function Counters(props) {
 // container and title for timers' settings component
 function TimerSettings(props) {
   return (
-    <div className="timer-settings">
+    <div className="timer-settings" onMouseOver={props.onMouseOver} onMouseOut={props.onMouseOut}>
 
       <div className="settings-group settings-work">
         <div className="timer-title work-title" style={props.titleStyles.workTitle}>Work</div>
-        <TimeSetter className='settings-timer-work' timer={props.work}
-          onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
-        />
-        <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.workSound} timer={props.work} onSoundSelect={(timer, sound) => props.onSoundSelect('work', sound)} sounds={props.sounds}/>
-        <GoalSetter goal={props.goal} onGoalChange={change => props.onGoalChange(change)} />
+        <div className="timer-settings-content" style={props.settingsStyle}>
+          <TimeSetter className='settings-timer-work' timer={props.work}
+            onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
+          />
+          <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.workSound} timer={props.work} onSoundSelect={(timer, sound) => props.onSoundSelect('work', sound)} sounds={props.sounds}/>
+          <GoalSetter goal={props.goal} onGoalChange={change => props.onGoalChange(change)} />
         </div>
+      </div>
       
       <div className="settings-group settings-break">
         <div className="timer-title break-title" style={props.titleStyles.breakTitle}>Break</div>
-        <TimeSetter classname='settings-timer-break' timer={props.break} 
-          onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
-        />
-        <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.breakSound} timer={props.break} onSoundSelect={(timer, sound) => props.onSoundSelect('break', sound)} sounds={props.sounds}/>
+        <div className="timer-settings-content" style={props.settingsStyle}>
+          <TimeSetter classname='settings-timer-break' timer={props.break} 
+            onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
+          />
+          <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.breakSound} timer={props.break} onSoundSelect={(timer, sound) => props.onSoundSelect('break', sound)} sounds={props.sounds}/>
+        </div>
       </div>
 
       <div className="settings-group settings-long-break">
         <div className="timer-title long-break-title" style={props.titleStyles.longBreakTitle}>Long Break</div>
-        <TimeSetter classname='settings-timer-long-break' timer={props.longBreak} 
-          onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
-        />
-        <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.longBreakSound} timer={props.longBreak} onSoundSelect={(timer, sound) => props.onSoundSelect('longBreak', sound)} sounds={props.sounds}/>
-        <LongBreakSetter
-          pomodoroSet={props.pomodoroSet}
-          onSetChange={change => props.handleSetChange(change)}
-          stopSetChange={props.stopSetChange}
-        />
+        <div className="timer-settings-content" style={props.settingsStyle}>
+          <TimeSetter classname='settings-timer-long-break' timer={props.longBreak} 
+            onDurationChange={(timer, change) => props.onDurationChange(timer,change)}
+          />
+          <SoundSelector onSampleSound={timer => props.onSampleSound(timer)} activeSound={props.longBreakSound} timer={props.longBreak} onSoundSelect={(timer, sound) => props.onSoundSelect('longBreak', sound)} sounds={props.sounds}/>
+          <LongBreakSetter
+            pomodoroSet={props.pomodoroSet}
+            onSetChange={change => props.handleSetChange(change)}
+            stopSetChange={props.stopSetChange}
+          />
+        </div>
       </div> 
 
 
@@ -267,15 +268,10 @@ class App extends Component {
 
       // sound names to assign to a timer
       sounds: [
-        'Bell1',
-        'Bell2',
-        'Coin',
+        'Bell',
         'Triumph',
         'LevelUp',
-        'Success',
-        'Tadaa',
         'Winning',
-        'WinSynth',
       ],
 
       // WORK TIMER
@@ -291,7 +287,7 @@ class App extends Component {
         name: 'break',
         duration: 300, // 5 minutes default
         timeRemaining: 300,
-        sound: 'WinSynth',
+        sound: 'Bell',
       },
 
       // LONG BREAK TIMER
@@ -324,6 +320,14 @@ class App extends Component {
             color: '',
             borderBottom: '',
           }
+        },
+        settings: {
+          maxHeight: 0,
+        },
+        about: {
+          maxHeight: 0,
+          margin: 0,
+          padding: '0 2em',
         }
       },
 
@@ -346,6 +350,8 @@ class App extends Component {
     this.handleGoalChange = this.handleGoalChange.bind(this);
     this.handleSetChange = this.handleSetChange.bind(this);
     this.handleSoundSelect = this.handleSoundSelect.bind(this);
+    this.handleSettingsToggle = this.handleSettingsToggle.bind(this);
+    this.handleAboutToggle = this.handleAboutToggle.bind(this);
 
     this.setMouseDown = this.setMouseDown.bind(this);
     this.setMouseUp = this.setMouseUp.bind(this);
@@ -719,6 +725,35 @@ class App extends Component {
     this.setState({ work: workTimer, break: breakTimer, longBreak: longBreakTimer, longBreakTime: false, progressPercent: 0, });
   }
 
+  // --------------------------------------------------------------------------
+  //                                           handle settings toggle
+  // --------------------------------------------------------------------------
+
+  handleSettingsToggle() {
+    const styles = JSON.parse(JSON.stringify(this.state.styles));
+    !styles.settings.maxHeight
+      ? styles.settings.maxHeight = '999px'
+      : styles.settings.maxHeight = 0;
+    this.setState({styles});
+  }
+
+  // --------------------------------------------------------------------------
+  //                                           handle about toggle
+  // --------------------------------------------------------------------------
+
+  handleAboutToggle() {
+    const styles = JSON.parse(JSON.stringify(this.state.styles));
+    if (!styles.about.maxHeight) {
+      styles.about.maxHeight = '999px';
+      styles.about.marginTop = '2em';
+      styles.about.padding = '1em 2em';
+    } else {
+      styles.about.maxHeight = 0;
+      styles.about.marginTop = 0;
+      styles.about.padding = '0 2em';
+    }
+    this.setState({styles});
+  }
 
   // -----------------------------------------------------------------------------------------
   //                                                                              MAIN RENDER
@@ -776,17 +811,25 @@ class App extends Component {
             }
           }}
           showSettings={this.state.showSettings}
+          settingsStyle={this.state.styles.settings}
+          onMouseOver={this.handleSettingsToggle}
+          onMouseOut={this.handleSettingsToggle}
           />
+
+          <div className="about-pomodoro" style={this.state.styles.about}>
+            <p>The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s.</p>
+            <p>The technique uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks. These intervals are named pomodoros, the plural in English of the Italian word pomodoro (tomato), after the tomato-shaped kitchen timer that Cirillo used as a university student.</p>
+          <div className="close-btn-about" onClick={this.handleAboutToggle}>✕</div>
+          </div>
+
+          <div className="options">
+            <div className="options-btn-about" onClick={this.handleAboutToggle}>about</div>
+          </div>
         
-        <audio src={Bell1} ref="Bell1" />
-        <audio src={Bell2} ref="Bell2" />
-        <audio src={Coin} ref="Coin" />
+        <audio src={Bell} ref="Bell" />
         <audio src={Triumph} ref="Triumph" />
         <audio src={LevelUp} ref="LevelUp" />
-        <audio src={Success} ref="Success" />
-        <audio src={Tadaa} ref="Tadaa" />
         <audio src={Winning} ref="Winning" />
-        <audio src={WinSynth} ref="WinSynth" />
 
       </div>
     );
