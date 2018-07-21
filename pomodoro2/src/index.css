@@ -36,6 +36,8 @@ body {
   color: var(--medgrey);
 }
 
+
+
 .app {
   position: relative;
   max-width: 940px;
@@ -46,6 +48,16 @@ body {
   padding: 40px 60px 80px 60px;
 }
 
+@media(max-width: 375px) {
+  body {
+    font-size: 10px;
+  }
+  .app {
+    margin: 0;
+    padding: 20px 30px 40px 30px;
+  }
+}
+
 h1, h2 {
   font-family: 'Rubik', sans-serif;
   font-weight: 700;
@@ -54,7 +66,7 @@ h1, h2 {
 }
 
 h1.main-header {
-  font-size: 72px;
+  font-size: 3.6em;
   text-align: center;
   margin: 0;
 }
@@ -102,7 +114,7 @@ h1.main-header {
   width: 150px;
   height: 150px;
   border-radius: 100%;
-  font-size: 64px;
+  font-size: 3.2em;
   transition: 1s;
 }
 
@@ -120,7 +132,8 @@ h1.main-header {
   width: 106px;
   height: 106px;
   border-radius: 100%;
-  font-size: 64px;
+  /* font-size: 3.2em; */
+  font-size: 1em;
 }
 
 .progress-canvas {
@@ -153,18 +166,18 @@ h1.main-header {
 }
 
 .minutes {
-  font-size: 144px;
+  font-size: 7.2em;
   letter-spacing: -.05em;
 }
 
 .seconds {
-  font-size: 64px;
+  font-size: 3.2em;;
   color: #999;
   text-align: right;
 }
 
 .milliseconds{
-  font-size: 36px;
+  font-size: 1.6em;
   text-align: right;
 }
 
@@ -175,7 +188,7 @@ h1.main-header {
 }
 
 .counter-pomodoros {
-  font-size: 122px;
+  font-size: 6em;
   color: #999;
   font-weight: 200;
   letter-spacing: -.05em;
@@ -186,13 +199,13 @@ h1.main-header {
 }
 
 .counter-goal {
-  font-size: 48px;
+  font-size: 2.5em;
   text-align: right;
   color: var(--medgrey);
 }
 
 .counter-text {
-  font-size: 18px;
+  font-size: .9em;
   text-align: right;
 }
 
@@ -520,7 +533,7 @@ h1.main-header {
   border-radius: 6px;
   max-height: 0;
   overflow: hidden;
-  opacity: .95;
+  opacity: .9;
 
   transition: 1s ease-in-out;
 }
@@ -542,17 +555,16 @@ h1.main-header {
 
 .options {
   position: absolute;
-  right: 60px;
-  top: 4.5em;
-  font-size: .8em;
+  right: 1.5em;
+  top: 1em;
+  /* font-size: .8em; */
 
 
 }
 
 .options-btn-settings,
 .options-btn-about {
-  background: var(--lightgrey);
-  color: var(--darkgrey);
+  color: var(--medgrey);
   border-radius: 6px;
 
   padding: .5em;
@@ -568,6 +580,6 @@ h1.main-header {
 
 .options-btn-settings:hover,
 .options-btn-about:hover {
-  background: var(--lightgrey);
   cursor: pointer;
+  color: var(--lightgrey);
 }
