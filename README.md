@@ -1,19 +1,5 @@
 # React Apps Playground
 
-This is for any small React apps that I make.
+A selection of small React apps. Basically, playing around with an app here and then possibly building it out into something bigger, in which case it will move into its own repo. 
 
-## Date Facts App
-
-This app allows the user to select a date, and returns a fact for that date. It uses the Numbers API (http://numbersapi.com/).
-
-Check out a demonstration here: http://arielbk.com/date-facts
-
-View the source code here: https://github.com/arielbk/react-apps/tree/master/date-facts-react/src
-
-## Word Counter App
-
-This app counts the frequency of each word entered into a text box. It's fast, but it struggles once you try to paste in Crime and Punishment..
-
-Check out a demonstration here: http://arielbk.com/word-counter-react
-
-View the source code here: https://github.com/arielbk/react-apps/tree/master/word-counter-react/src
+All of these are bootstrapped with Create-React-App. Just run `npm start` to try them out for yourself.
